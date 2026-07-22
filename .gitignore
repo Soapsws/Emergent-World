@@ -1,2 +1,28 @@
+# Build output
 build/
+
+# macOS
 .DS_Store
+
+# Editor / IDE local files
+.vscode/
+.idea/
+
+# C/C++ object and binary artifacts
+*.o
+*.obj
+*.exe
+*.out
+*.app
+*.dSYM/
+
+# Temporary/editor swap files
+*.swp
+*.swo
+*~
+
+# CMake generated directories
+CMakeFiles/
+CMakeScripts/
+Testing/
+cmake-build-*/

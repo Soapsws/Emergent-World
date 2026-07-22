@@ -1,19 +1,13 @@
 #include <raylib.h>
 
+#include "Sim.hpp"
+
+// use Developer: Reload Window to get rid of stupid errors
+
 int main()
 {
-    InitWindow(1000, 700, "Emergent World");
-    SetTargetFPS(60);
+    Sim game;
+    game.Run();
 
-    while (!WindowShouldClose()) {
-        BeginDrawing();
-
-        ClearBackground(BLACK);
-        DrawCircle(500, 350, 10.0F, SKYBLUE);
-
-        EndDrawing();
-    }
-
-    CloseWindow();
     return 0;
 }

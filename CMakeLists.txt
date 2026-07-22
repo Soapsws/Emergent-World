@@ -2,7 +2,12 @@ cmake_minimum_required(VERSION 3.24)
 
 project(EmergentWorld LANGUAGES CXX)
 
-add_executable(emergent_world src/main.cpp)
+add_executable(emergent_world
+    src/main.cpp
+    src/Sim.cpp
+    src/CellPool.cpp
+    src/CellFactory.cpp
+)
 
 target_link_libraries(emergent_world PRIVATE raylib)
 
