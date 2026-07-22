@@ -9,25 +9,30 @@ namespace settings {
 
 namespace cells {
     const int MAX_CELLS = 100;
-    const float CELL_RADIUS = 5.0f;
 
     struct CellSpawnConfig {
         Vector2 velocityBounds; 
+        Vector2 radiusBounds;    // new
         Vector2 healthBounds;   
         Vector2 lifetimeBounds; 
+        Vector2 cooldownBounds;  // new
     };
 
     inline const CellSpawnConfig DEFAULT {
-        Vector2{ -1.0f, 1.0f },   
-        Vector2{ 50.0f, 100.0f }, 
-        Vector2{ 50.0f, 100.0f }  
+        Vector2{ -1.0f, 1.0f },   // velocity
+        Vector2{ 3.0f, 8.0f },     // radius
+        Vector2{ 50.0f, 100.0f }, // health
+        Vector2{ 5.0f, 10.0f },    // lifetime
+        Vector2{ 5.0f, 10.0f }   // cooldown
     };
 
     struct CellData {
         Vector2 position;
         Vector2 velocity;
+        float radius;
         float health;
         float lifetime;
+        float cooldown;
         bool active;
     };
 }
@@ -45,8 +50,10 @@ namespace sim {
                 static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.velocityBounds.x), static_cast<int>(cells::DEFAULT.velocityBounds.y)))
             },
 
+            static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.radiusBounds.x), static_cast<int>(cells::DEFAULT.radiusBounds.y))),
             static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.healthBounds.x), static_cast<int>(cells::DEFAULT.healthBounds.y))),
             static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.lifetimeBounds.x), static_cast<int>(cells::DEFAULT.lifetimeBounds.y))),
+            static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.cooldownBounds.x), static_cast<int>(cells::DEFAULT.cooldownBounds.y))),
             true
         };
     }

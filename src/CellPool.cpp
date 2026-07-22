@@ -4,8 +4,10 @@
 CellPool::CellPool(int capacity) {
     position.resize(capacity);
     velocity.resize(capacity);
+    radius.resize(capacity);
     health.resize(capacity);
     lifetime.resize(capacity);
+    cooldown.resize(capacity);
     active.resize(capacity, false);
 }
 
@@ -21,16 +23,18 @@ int CellPool::CreateNext(const cells::CellData& d) {
 }
 
 int CellPool::Create(int index, const cells::CellData& d) {
-    return Create(index, d.position, d.velocity, d.health, d.lifetime);
+    return Create(index, d.position, d.velocity, d.radius, d.health, d.lifetime, d.cooldown);
 }
 
-int CellPool::Create(int index, Vector2 pos, Vector2 vel, float hp, float life) {
+int CellPool::Create(int index, Vector2 pos, Vector2 vel, float rad, float hp, float life, float cool) {
     if (index < 0 || index >= static_cast<int>(active.size())) { return -1; }
     // using separate parameter names; otherwise would have to use this-> to disambiguate
     position[index] = pos;
     velocity[index] = vel;
+    radius[index] = rad;
     health[index] = hp;
     lifetime[index] = life;
+    cooldown[index] = cool;
     active[index] = true;
     return index;
 }

@@ -18,10 +18,13 @@ public:
     ~CellFactory();
 
     // Create from explicit fields, will try to find a free slot
-    int CreateCell(Vector2 pos, Vector2 vel, float hp, float life = 100.0f);
+    int CreateCell(Vector2 pos, Vector2 vel, float rad, float hp, float life = 100.0f, float cool = 0.0f);
 
     // Create from an existing CellData (unpack AoS -> SoA)
     int CreateCell(const cells::CellData& d);
+
+    // Helper function for respawn
+    void RespawnWithData(int index, const cells::CellData& d);
 
 private:
     CellPool& cellPool;

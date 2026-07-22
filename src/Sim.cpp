@@ -71,11 +71,11 @@ void Sim::Update() {
             }
         } else {
             // Respawn the cell
-            cellPool.position[i] = { static_cast<float>(GetRandomValue(0, settings::SCREEN_WIDTH)), static_cast<float>(GetRandomValue(0, settings::SCREEN_HEIGHT)) };
-            cellPool.velocity[i] = { static_cast<float>(GetRandomValue(-1, 1)), static_cast<float>(GetRandomValue(-1, 1)) };
-            cellPool.health[i] = static_cast<float>(GetRandomValue(50, 100));
-            cellPool.lifetime[i] = 100.0f;
-            cellPool.active[i] = true;
+            cellPool.cooldown[i] -= GetFrameTime();
+            if (cellPool.cooldown[i] <= 0) {
+                cells::CellData data = sim::defaultSpawn();
+                cellFactory.RespawnWithData(i, data);
+            }   
         }
     }
 }
@@ -87,7 +87,7 @@ void Sim::Render() {
     // Render cells
     for (int i = 0; i < numCells; ++i) {
         if (cellPool.active[i]) {
-            DrawCircleV(cellPool.position[i], cells::CELL_RADIUS, GREEN);
+            DrawCircleV(cellPool.position[i], cellPool.radius[i], GREEN);
         }
     }
 
