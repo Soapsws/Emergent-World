@@ -170,5 +170,81 @@ namespace food {
     }
 }
 
-namespace sim {
+namespace colors {
+
+    // COLOR PALETTE
+
+    constexpr int NEON_MAGENTA_STD = 0;
+    constexpr int NEON_PURPLE = 1;
+    constexpr int NEON_ORANGE = 2;
+    constexpr int NEON_SKYBLUE = 3;
+    constexpr int NEON_LIME = 4;
+    constexpr int NEON_PINK = 5;
+    constexpr int NEON_CYAN = 6;
+    constexpr int NEON_MAGENTA = 7;
+    constexpr int NEON_TEAL = 8;
+    constexpr int NEON_GOLD = 9;
+    constexpr int NEON_ULTRA_PURPLE = 10;
+    constexpr int NEON_AZURE = 11;
+    constexpr int NEON_HOT_PINK = 12;
+    constexpr int NEON_CHARTREUSE = 13;
+    constexpr int NEON_CORAL = 14;
+    constexpr int NEON_COUNT = 15;
+
+    inline const Color NEON_COLORS[NEON_COUNT] = {
+        /* NEON_MAGENTA_STD */ Color{ 255, 0, 255, 255 },
+        /* NEON_PURPLE */ Color{ 200, 122, 255, 255 },
+        /* NEON_ORANGE */ Color{ 255, 161, 0, 255 },
+        /* NEON_SKYBLUE */ Color{ 102, 191, 255, 255 },
+        /* NEON_LIME */ Color{ 0, 158, 47, 255 },
+        /* NEON_PINK */ Color{ 255, 109, 194, 255 },
+        /* NEON_CYAN */ Color{ 0x00, 0xFF, 0xFF, 0xFF },
+        /* NEON_MAGENTA */ Color{ 0xFF, 0x00, 0xFF, 0xFF },
+        /* NEON_TEAL */ Color{ 0x00, 0xFF, 0x80, 0xFF },
+        /* NEON_GOLD */ Color{ 0xFF, 0xA5, 0x00, 0xFF },
+        /* NEON_ULTRA_PURPLE */ Color{ 0x7F, 0x00, 0xFF, 0xFF },
+        /* NEON_AZURE */ Color{ 0x00, 0xB0, 0xFF, 0xFF },
+        /* NEON_HOT_PINK */ Color{ 0xFF, 0x3F, 0x80, 0xFF },
+        /* NEON_CHARTREUSE */ Color{ 0x7C, 0xFF, 0x00, 0xFF },
+        /* NEON_CORAL */ Color{ 0xFF, 0x20, 0x20, 0xFF }
+    };
+
+    inline const char* NEON_COLOR_NAMES[NEON_COUNT] = {
+        "NEON_MAGENTA_STD",
+        "NEON_PURPLE",
+        "NEON_ORANGE",
+        "NEON_SKYBLUE",
+        "NEON_LIME",
+        "NEON_PINK",
+        "NEON_CYAN",
+        "NEON_MAGENTA",
+        "NEON_TEAL",
+        "NEON_GOLD",
+        "NEON_ULTRA_PURPLE",
+        "NEON_AZURE",
+        "NEON_HOT_PINK",
+        "NEON_CHARTREUSE",
+        "NEON_CORAL"
+    };
+
+    inline Color GetNeonColor(int id) {
+        if (id < 0) id = 0;
+        if (id >= NEON_COUNT) id = id % NEON_COUNT;
+        return NEON_COLORS[id];
+    }
+
+    inline Color GetNeonColorByIndex(int idx) {
+        const int n = NEON_COUNT;
+        if (n == 0) return WHITE;
+        int i = idx % n;
+        if (i < 0) i += n;
+        return NEON_COLORS[i];
+    }
+
+    inline const char* GetNeonColorName(int id) {
+        if (id < 0) id = 0;
+        if (id >= NEON_COUNT) id = id % NEON_COUNT;
+        return NEON_COLOR_NAMES[id];
+    }
+    
 }

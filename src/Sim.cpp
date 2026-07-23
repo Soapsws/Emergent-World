@@ -73,6 +73,16 @@ void Sim::UpdateMovement(Pool& pool, int numEntities) {
         if (pool.active[i]) {
             pool.transform[i].position.x += pool.transform[i].velocity.x;
             pool.transform[i].position.y += pool.transform[i].velocity.y;
+            if (pool.transform[i].position.x < 0) {
+                pool.transform[i].position.x = settings::SCREEN_WIDTH;
+            } else if (pool.transform[i].position.x > settings::SCREEN_WIDTH) {
+                pool.transform[i].position.x = 0;
+            }
+            if (pool.transform[i].position.y < 0) {
+                pool.transform[i].position.y = settings::SCREEN_HEIGHT;
+            } else if (pool.transform[i].position.y > settings::SCREEN_HEIGHT) {
+                pool.transform[i].position.y = 0;
+            }
         }
     }
 }
@@ -108,13 +118,13 @@ void Sim::Render() {
 
     for (int i = 0; i < numCells; ++i) {
         if (cellPool.active[i]) {
-            DrawCircleV(cellPool.transform[i].position, cellPool.radius[i], GREEN);
+            DrawCircleV(cellPool.transform[i].position, cellPool.radius[i], colors::GetNeonColor(colors::NEON_AZURE));
         }
     }
 
     for (int i = 0; i < numFood; ++i) {
         if (foodPool.active[i]) {
-            DrawCircleV(foodPool.transform[i].position, foodPool.radius[i], RED);
+            DrawCircleV(foodPool.transform[i].position, foodPool.radius[i], colors::GetNeonColor(colors::NEON_PINK));
         }
     }
 
