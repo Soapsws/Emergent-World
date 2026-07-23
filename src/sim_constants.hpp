@@ -53,10 +53,11 @@ namespace cells {
 
     struct CellSpawnConfig {
         world::EntitySpecies species;
-        entity::TransformBounds transformBounds; // new
-        entity::SpawningBounds spawningBounds; // new
+        entity::TransformBounds transformBounds; 
+        entity::SpawningBounds spawningBounds; 
         Vector2 radiusBounds;   
         Vector2 healthBounds;   
+        Vector2 dpsBounds; // new
     };
 
     inline const CellSpawnConfig DEFAULT {
@@ -70,17 +71,45 @@ namespace cells {
         entity::SpawningBounds{ Vector2{ 5.0f, 10.0f }, Vector2{ 5.0f, 10.0f } }, // spawning
         Vector2{ 3.0f, 8.0f },     // radius
         Vector2{ 50.0f, 100.0f }, // health
+        Vector2{ 5.0f, 10.0f }      // dps
     };
 
     struct CellData {
-        world::EntitySpecies species; // new
-        entity::Transform transform; // new
-        entity::Spawning spawning; // new
+        world::EntitySpecies species; 
+        entity::Transform transform; 
+        entity::Spawning spawning; 
         float radius;
         float health;
         float dps; // new
         bool active;
     };
+
+    inline cells::CellData defaultSpawn() {
+    return {
+        world::EntitySpecies::Cell,
+
+        entity::Transform{
+            Vector2{
+                static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.transformBounds.positionMin.x), static_cast<int>(cells::DEFAULT.transformBounds.positionMax.x))),
+                static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.transformBounds.positionMin.y), static_cast<int>(cells::DEFAULT.transformBounds.positionMax.y)))
+            },
+            Vector2{
+                static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.transformBounds.velocityMin.x), static_cast<int>(cells::DEFAULT.transformBounds.velocityMax.x))),
+                static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.transformBounds.velocityMin.y), static_cast<int>(cells::DEFAULT.transformBounds.velocityMax.y)))
+            }
+        },
+
+        entity::Spawning{
+            static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.spawningBounds.lifetimeBounds.x), static_cast<int>(cells::DEFAULT.spawningBounds.lifetimeBounds.y))),
+            static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.spawningBounds.cooldownBounds.x), static_cast<int>(cells::DEFAULT.spawningBounds.cooldownBounds.y)))
+        },
+
+        static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.radiusBounds.x), static_cast<int>(cells::DEFAULT.radiusBounds.y))),
+        static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.healthBounds.x), static_cast<int>(cells::DEFAULT.healthBounds.y))),
+        0.0f,
+        true
+    };
+    }
 }
 
 namespace food {
@@ -142,30 +171,4 @@ namespace food {
 }
 
 namespace sim {
-    inline cells::CellData defaultSpawn() {
-        return {
-            world::EntitySpecies::Cell,
-
-            entity::Transform{
-                Vector2{
-                    static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.transformBounds.positionMin.x), static_cast<int>(cells::DEFAULT.transformBounds.positionMax.x))),
-                    static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.transformBounds.positionMin.y), static_cast<int>(cells::DEFAULT.transformBounds.positionMax.y)))
-                },
-                Vector2{
-                    static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.transformBounds.velocityMin.x), static_cast<int>(cells::DEFAULT.transformBounds.velocityMax.x))),
-                    static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.transformBounds.velocityMin.y), static_cast<int>(cells::DEFAULT.transformBounds.velocityMax.y)))
-                }
-            },
-
-            entity::Spawning{
-                static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.spawningBounds.lifetimeBounds.x), static_cast<int>(cells::DEFAULT.spawningBounds.lifetimeBounds.y))),
-                static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.spawningBounds.cooldownBounds.x), static_cast<int>(cells::DEFAULT.spawningBounds.cooldownBounds.y)))
-            },
-
-            static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.radiusBounds.x), static_cast<int>(cells::DEFAULT.radiusBounds.y))),
-            static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.healthBounds.x), static_cast<int>(cells::DEFAULT.healthBounds.y))),
-            0.0f,
-            true
-        };
-    }
 }

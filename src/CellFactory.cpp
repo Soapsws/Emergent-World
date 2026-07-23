@@ -8,14 +8,14 @@ CellFactory::~CellFactory() {
     // Cleanup logic if needed
 }
 
-int CellFactory::CreateCell(Vector2 pos, Vector2 vel, float rad, float hp, float life, float cool) {
+int CellFactory::CreateCell(Vector2 pos, Vector2 vel, float rad, float hp, float dps,float life, float cool) {
     cells::CellData d{
         world::EntitySpecies::Cell,
         entity::Transform{pos, vel},
         entity::Spawning{life, cool},
         rad,
         hp,
-        0.0f,
+        dps,
         true
     };
     return cellPool.CreateNext(d);
@@ -30,5 +30,6 @@ void CellFactory::RespawnWithData(int index, const cells::CellData& d) {
    cellPool.spawning[index] = d.spawning;
    cellPool.radius[index] = d.radius;
    cellPool.health[index] = d.health;
+   cellPool.dps[index] = d.dps;
    cellPool.active[index] = true;
 }

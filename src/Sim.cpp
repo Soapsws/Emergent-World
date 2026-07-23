@@ -28,7 +28,7 @@ The member initialization list initializes class members before the constructor 
 
 Sim::Sim() : numCells(0), numFood(0), cellPool(cells::MAX_CELLS), cellFactory(cellPool), foodPool(food::MAX_NATURAL_FOOD), foodFactory(foodPool) {
     for (int i = 0; i < cells::MAX_CELLS; ++i) {
-        cells::CellData data = sim::defaultSpawn();
+        cells::CellData data = cells::defaultSpawn();
         int id = cellFactory.CreateCell(data);
         if (id >= 0) ++numCells;
     }
@@ -55,60 +55,52 @@ void Sim::Run() {
 }
 
 void Sim::Update() {
-    for (int i = 0; i < numCells; ++i) {
-        if (cellPool.active[i]) {
-            cellPool.transform[i].position.x += cellPool.transform[i].velocity.x;
-            cellPool.transform[i].position.y += cellPool.transform[i].velocity.y;
+    UpdateMovement(cellPool, numCells);
+    // C++ lambda: [what to capture] { body }
+    // Below is a callable that takes no arguments and returns a new entity spawn data
+            // Full form: [ capture_clause ] ( parameter_list ) specifiers -> return_type { body }
+            // "-> return type" can be omitted unless it must be specified.
+    // If you just pass the function you'd have to call it INSIDE the function and manually capture the function.
+    UpdateSpawning(cellPool, cellFactory, [] { return cells::defaultSpawn(); }, numCells);
 
-            if (cellPool.transform[i].position.x < 0 || cellPool.transform[i].position.x > settings::SCREEN_WIDTH) {
-                cellPool.transform[i].velocity.x *= -1;
-            }
-            if (cellPool.transform[i].position.y < 0 || cellPool.transform[i].position.y > settings::SCREEN_HEIGHT) {
-                cellPool.transform[i].velocity.y *= -1;
-            }
+    UpdateMovement(foodPool, numFood);
+    UpdateSpawning(foodPool, foodFactory, [] { return food::defaultSpawn(); }, numFood);
+}
 
-            cellPool.spawning[i].lifetime -= GetFrameTime();
-            if (cellPool.spawning[i].lifetime <= 0) {
-                cellPool.active[i] = false;
-            }
-        } else {
-            cellPool.spawning[i].cooldown -= GetFrameTime();
-            if (cellPool.spawning[i].cooldown <= 0) {
-                cells::CellData data = sim::defaultSpawn();
-                cellFactory.RespawnWithData(i, data);
-            }
+template <typename Pool>
+void Sim::UpdateMovement(Pool& pool, int numEntities) {
+    for (int i = 0; i < numEntities; ++i) {
+        if (pool.active[i]) {
+            pool.transform[i].position.x += pool.transform[i].velocity.x;
+            pool.transform[i].position.y += pool.transform[i].velocity.y;
         }
     }
+}
 
-    for (int i = 0; i < numFood; ++i) {
-        if (foodPool.active[i]) {
-            foodPool.transform[i].position.x += foodPool.transform[i].velocity.x;
-            foodPool.transform[i].position.y += foodPool.transform[i].velocity.y;
-
-            if (foodPool.transform[i].position.x < 0) {
-                foodPool.transform[i].position.x = settings::SCREEN_WIDTH;
-            } else if (foodPool.transform[i].position.x > settings::SCREEN_WIDTH) {
-                foodPool.transform[i].position.x = 0;
-            }
-            if (foodPool.transform[i].position.y < 0) {
-                foodPool.transform[i].position.y = settings::SCREEN_HEIGHT;
-            } else if (foodPool.transform[i].position.y > settings::SCREEN_HEIGHT) {
-                foodPool.transform[i].position.y = 0;
-            }
-
-            foodPool.spawning[i].lifetime -= GetFrameTime();
-            if (foodPool.spawning[i].lifetime <= 0) {
-                foodPool.active[i] = false;
+template <typename Pool, typename Factory, typename DefaultSpawn>
+void Sim::UpdateSpawning(Pool& pool, Factory& factory, DefaultSpawn defaultSpawn, int numEntities) {
+    float t = GetFrameTime();
+    for (int i = 0; i < numEntities; ++i) {
+        if (pool.active[i]) {
+            pool.spawning[i].lifetime -= t;
+            if (pool.spawning[i].lifetime <= 0) {
+                pool.active[i] = false;
             }
         } else {
-            foodPool.spawning[i].cooldown -= GetFrameTime();
-            if (foodPool.spawning[i].cooldown <= 0) {
-                food::FoodData data = food::defaultSpawn();
-                foodFactory.RespawnWithData(i, data);
+            pool.spawning[i].cooldown -= t;
+            if (pool.spawning[i].cooldown <= 0) {
+                // auto deduces data from the RHS
+                auto data = defaultSpawn();
+                factory.RespawnWithData(i, data);
             }
         }
     }
 }
+
+void Sim::CellCellCollision() {
+
+}
+
 
 void Sim::Render() {
     BeginDrawing();
@@ -116,13 +108,13 @@ void Sim::Render() {
 
     for (int i = 0; i < numCells; ++i) {
         if (cellPool.active[i]) {
-            DrawCircleV(cellPool.position[i], cellPool.radius[i], GREEN);
+            DrawCircleV(cellPool.transform[i].position, cellPool.radius[i], GREEN);
         }
     }
 
     for (int i = 0; i < numFood; ++i) {
         if (foodPool.active[i]) {
-            DrawCircleV(foodPool.position[i], foodPool.radius[i], RED);
+            DrawCircleV(foodPool.transform[i].position, foodPool.radius[i], RED);
         }
     }
 
