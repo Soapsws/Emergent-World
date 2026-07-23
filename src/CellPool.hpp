@@ -6,12 +6,10 @@
 struct CellPool {
 
     // Cell properties (Structure of Arrays)
-    std::vector<Vector2> position;
-    std::vector<Vector2> velocity;
-    std::vector<float> radius; // new
+    std::vector<entity::Transform> transform;
+    std::vector<entity::Spawning> spawning;
+    std::vector<float> radius;
     std::vector<float> health;
-    std::vector<float> lifetime;
-    std::vector<float> cooldown; // new
     std::vector<bool> active;
 
     // initialize pool with capacity (defaults to cells::MAX_CELLS)

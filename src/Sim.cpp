@@ -1,7 +1,6 @@
 #include <raylib.h>
 
 #include "Sim.hpp"
-#include "CellFactory.hpp"
 #include "sim_constants.hpp"
 
 
@@ -27,12 +26,17 @@ The member initialization list initializes class members before the constructor 
 
 
 
-Sim::Sim() : numCells(0), cellPool(cells::MAX_CELLS), cellFactory(cellPool) {
-    // Initialize the cell pool with some cells
+Sim::Sim() : numCells(0), numFood(0), cellPool(cells::MAX_CELLS), cellFactory(cellPool), foodPool(food::MAX_NATURAL_FOOD), foodFactory(foodPool) {
     for (int i = 0; i < cells::MAX_CELLS; ++i) {
         cells::CellData data = sim::defaultSpawn();
         int id = cellFactory.CreateCell(data);
-        if (id >= 0) ++numCells; // increments then yields new value
+        if (id >= 0) ++numCells;
+    }
+
+    for (int i = 0; i < food::MAX_NATURAL_FOOD; ++i) {
+        food::FoodData data = food::defaultSpawn();
+        int id = foodFactory.CreateFood(data);
+        if (id >= 0) ++numFood;
     }
 
     InitWindow(settings::SCREEN_WIDTH, settings::SCREEN_HEIGHT, "Emergent World");
@@ -51,31 +55,57 @@ void Sim::Run() {
 }
 
 void Sim::Update() {
-    // Update logic for cells can be added here
     for (int i = 0; i < numCells; ++i) {
         if (cellPool.active[i]) {
-            // Update position based on velocity
-            cellPool.position[i].x += cellPool.velocity[i].x;
-            cellPool.position[i].y += cellPool.velocity[i].y;
+            cellPool.transform[i].position.x += cellPool.transform[i].velocity.x;
+            cellPool.transform[i].position.y += cellPool.transform[i].velocity.y;
 
-            if (cellPool.position[i].x < 0 || cellPool.position[i].x > settings::SCREEN_WIDTH) {
-                cellPool.velocity[i].x *= -1; // Reverse direction
+            if (cellPool.transform[i].position.x < 0 || cellPool.transform[i].position.x > settings::SCREEN_WIDTH) {
+                cellPool.transform[i].velocity.x *= -1;
             }
-            if (cellPool.position[i].y < 0 || cellPool.position[i].y > settings::SCREEN_HEIGHT) {
-                cellPool.velocity[i].y *= -1; // Reverse direction
+            if (cellPool.transform[i].position.y < 0 || cellPool.transform[i].position.y > settings::SCREEN_HEIGHT) {
+                cellPool.transform[i].velocity.y *= -1;
             }
 
-            cellPool.lifetime[i] -= GetFrameTime();
-            if (cellPool.lifetime[i] <= 0) {
+            cellPool.spawning[i].lifetime -= GetFrameTime();
+            if (cellPool.spawning[i].lifetime <= 0) {
                 cellPool.active[i] = false;
             }
         } else {
-            // Respawn the cell
-            cellPool.cooldown[i] -= GetFrameTime();
-            if (cellPool.cooldown[i] <= 0) {
+            cellPool.spawning[i].cooldown -= GetFrameTime();
+            if (cellPool.spawning[i].cooldown <= 0) {
                 cells::CellData data = sim::defaultSpawn();
                 cellFactory.RespawnWithData(i, data);
-            }   
+            }
+        }
+    }
+
+    for (int i = 0; i < numFood; ++i) {
+        if (foodPool.active[i]) {
+            foodPool.transform[i].position.x += foodPool.transform[i].velocity.x;
+            foodPool.transform[i].position.y += foodPool.transform[i].velocity.y;
+
+            if (foodPool.transform[i].position.x < 0) {
+                foodPool.transform[i].position.x = settings::SCREEN_WIDTH;
+            } else if (foodPool.transform[i].position.x > settings::SCREEN_WIDTH) {
+                foodPool.transform[i].position.x = 0;
+            }
+            if (foodPool.transform[i].position.y < 0) {
+                foodPool.transform[i].position.y = settings::SCREEN_HEIGHT;
+            } else if (foodPool.transform[i].position.y > settings::SCREEN_HEIGHT) {
+                foodPool.transform[i].position.y = 0;
+            }
+
+            foodPool.spawning[i].lifetime -= GetFrameTime();
+            if (foodPool.spawning[i].lifetime <= 0) {
+                foodPool.active[i] = false;
+            }
+        } else {
+            foodPool.spawning[i].cooldown -= GetFrameTime();
+            if (foodPool.spawning[i].cooldown <= 0) {
+                food::FoodData data = food::defaultSpawn();
+                foodFactory.RespawnWithData(i, data);
+            }
         }
     }
 }
@@ -84,10 +114,15 @@ void Sim::Render() {
     BeginDrawing();
     ClearBackground(BLACK);
 
-    // Render cells
     for (int i = 0; i < numCells; ++i) {
         if (cellPool.active[i]) {
             DrawCircleV(cellPool.position[i], cellPool.radius[i], GREEN);
+        }
+    }
+
+    for (int i = 0; i < numFood; ++i) {
+        if (foodPool.active[i]) {
+            DrawCircleV(foodPool.position[i], foodPool.radius[i], RED);
         }
     }
 

@@ -2,6 +2,8 @@
 
 #include "CellPool.hpp"
 #include "CellFactory.hpp"
+#include "FoodPool.hpp"
+#include "FoodFactory.hpp"
 
 class Sim {
 
@@ -18,7 +20,10 @@ class Sim {
         void Render();
 
         int numCells;
+        int numFood;
         CellPool cellPool;
         CellFactory cellFactory;
+        FoodPool foodPool;
+        FoodFactory foodFactory;
 
 };
