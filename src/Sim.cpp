@@ -2,6 +2,8 @@
 
 #include "Sim.hpp"
 #include "sim_constants.hpp"
+#include "Interactors.hpp"
+#include <memory>
 
 
 /*
@@ -65,6 +67,8 @@ void Sim::Update() {
 
     UpdateMovement(foodPool, numFood);
     UpdateSpawning(foodPool, foodFactory, [] { return food::defaultSpawn(); }, numFood);
+
+    UpdateCollisions();
 }
 
 template <typename Pool>
@@ -107,8 +111,49 @@ void Sim::UpdateSpawning(Pool& pool, Factory& factory, DefaultSpawn defaultSpawn
     }
 }
 
-void Sim::CellCellCollision() {
+void Sim::UpdateCollisions() {
+    Interactors interactors;
 
+    // Generic Lambda
+
+    auto cellCellInteractor = [&](auto& poolA, int indexA, auto& poolB, int indexB) {
+        interactors.CellCell(poolA, indexA, poolB, indexB);
+    };
+
+    CircleCircleCollision(cellPool, cellCellInteractor, cellPool, cellCellInteractor);
+    // CircleCircleCollision(cellPool, cellFoodInteractor, foodPool, foodCellInteractor);
+    // CircleCircleCollision(foodPool, foodFoodInteractor, foodPool, foodFoodInteractor);
+}
+
+template <typename CircularEntityPool1, typename Interact1, typename CircularEntityPool2, typename Interact2>
+void Sim::CircleCircleCollision(CircularEntityPool1& pool1, Interact1 interactor1, CircularEntityPool2& pool2, Interact2 interactor2) {
+    // If both pools are actually the same object, avoid duplicate checks and self-collision
+    bool samePool = (std::addressof(pool1) == std::addressof(pool2));
+
+    for (int i = 0; i < static_cast<int>(pool1.active.size()); ++i) {
+        if (!pool1.active[i]) continue;
+
+        int jStart = 0;
+        if (samePool) jStart = i + 1;
+
+        for (int j = jStart; j < static_cast<int>(pool2.active.size()); ++j) {
+            if (!pool2.active[j]) continue;
+
+            // Collision check
+            Vector2 pos1 = pool1.transform[i].position;
+            float rad1 = pool1.radius[i];
+            Vector2 pos2 = pool2.transform[j].position;
+            float rad2 = pool2.radius[j];
+
+            if (CheckCollisionCircles(pos1, rad1, pos2, rad2)) {
+                if (samePool) interactor1(pool1, i, pool2, j);
+                else {
+                    interactor1(pool1, i, pool2, j);
+                    interactor2(pool2, j, pool1, i);
+                }
+            }
+        }
+    }
 }
 
 

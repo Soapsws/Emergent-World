@@ -27,10 +27,13 @@ class Sim {
         template <typename Pool, typename Factory, typename SpawnCreator>
         void UpdateSpawning(Pool& pool, Factory& factory, SpawnCreator spawnCreator, int numEntities);
 
-        void CellCellCollision();
-        void CellFoodCollision();
-        void FoodFoodCollision();
+        void UpdateCollisions();
+
+        template <typename CircularEntityPool1, typename Interact1, typename CircularEntityPool2, typename Interact2>
+        void CircleCircleCollision(CircularEntityPool1& pool1, Interact1 interactor1, CircularEntityPool2& pool2, Interact2 interactor2);
+
             // ------------------------
+            
         void Render();
 
         int numCells;

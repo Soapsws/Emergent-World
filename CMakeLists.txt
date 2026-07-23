@@ -9,6 +9,7 @@ add_executable(emergent_world
     src/CellFactory.cpp
     src/FoodPool.cpp
     src/FoodFactory.cpp
+    src/Interactors.cpp
 )
 
 target_link_libraries(emergent_world PRIVATE raylib)
