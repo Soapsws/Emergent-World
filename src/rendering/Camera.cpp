@@ -5,10 +5,10 @@
 #include "Camera.hpp"
 #include "sim_constants.hpp"
 
-PlayerCamera::PlayerCamera(float screenHeight, float screenWidth) {
+PlayerCamera::PlayerCamera(float screenWidth, float screenHeight) {
     cam2d.target = Vector2{settings::WORLD_WIDTH * 0.5f, settings::WORLD_HEIGHT * 0.5f};
     cam2d.offset = Vector2{screenWidth * 0.5f, screenHeight * 0.5f}; // center in middle of screen
-    cam2d.rotation = 0.0f;
+    cam2d.rotation = 0.0f; // unnecessary?
     cam2d.zoom = 1.0f;
 }
 
@@ -28,7 +28,7 @@ void PlayerCamera::toggleFollowing() {
 }
 
 void PlayerCamera::pan(float angle) {
-    cam2d.rotation += angle;
+    cam2d.target = Vector2Add(cam2d.target, Vector2{speed * cosf(angle), speed * sinf(angle)});
 }
 
 void PlayerCamera::resetTransform() {

@@ -5,8 +5,14 @@
 class PlayerCamera {
     private:
         Camera2D cam2d {};
+
         bool following { false };
+        Vector2 targetPosition {};
+
         Vector2 zoomBounds { 0.2f, 5.0f };
+
+        float speed { 1.0f };
+        Vector2 speedBounds { 0.5, 2.0f };
 
     public:
         PlayerCamera(float screenHeight, float screenWidth);

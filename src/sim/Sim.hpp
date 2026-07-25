@@ -4,6 +4,7 @@
 #include "CellFactory.hpp"
 #include "FoodPool.hpp"
 #include "FoodFactory.hpp"
+#include "Renderer.hpp"
 
 class Sim {
 
@@ -32,9 +33,13 @@ class Sim {
         template <typename CircularEntityPool1, typename Interact1, typename CircularEntityPool2, typename Interact2>
         void CircleCircleCollision(CircularEntityPool1& pool1, Interact1 interactor1, CircularEntityPool2& pool2, Interact2 interactor2);
 
-            // ------------------------
+        void ProcessInput();
+
+        // ------------------------
             
         void Render();
+
+        Renderer renderer;
 
         int numCells;
         int numFood;

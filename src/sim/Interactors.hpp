@@ -1,3 +1,5 @@
+#pragma once
+
 #include "CellPool.hpp"
 #include "FoodPool.hpp"
 

@@ -11,6 +11,7 @@ add_executable(emergent_world
     src/factories/FoodFactory.cpp
     src/sim/Interactors.cpp
     src/rendering/Camera.cpp
+    src/rendering/Renderer.cpp
 )
 
 target_include_directories(emergent_world PRIVATE

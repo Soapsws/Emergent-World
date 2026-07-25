@@ -28,7 +28,8 @@ The member initialization list initializes class members before the constructor 
 
 
 
-Sim::Sim() : numCells(0), numFood(0), cellPool(cells::MAX_CELLS), cellFactory(cellPool), foodPool(food::MAX_NATURAL_FOOD), foodFactory(foodPool) {
+Sim::Sim() : numCells(0), numFood(0), cellPool(cells::MAX_CELLS), cellFactory(cellPool), 
+                foodPool(food::MAX_NATURAL_FOOD), foodFactory(foodPool), renderer() {
     for (int i = 0; i < cells::MAX_CELLS; ++i) {
         cells::CellData data = cells::defaultSpawn();
         int id = cellFactory.CreateCell(data);
@@ -69,6 +70,12 @@ void Sim::Update() {
     UpdateSpawning(foodPool, foodFactory, [] { return food::defaultSpawn(); }, numFood);
 
     UpdateCollisions();
+
+    // USER INPUT
+}
+
+void Sim::ProcessInput() {
+    // (move to bottom)
 }
 
 template <typename Pool>
@@ -158,20 +165,20 @@ void Sim::CircleCircleCollision(CircularEntityPool1& pool1, Interact1 interactor
 
 
 void Sim::Render() {
-    BeginDrawing();
+    //------------------
+    BeginDrawing(); // DRAWING
+    //------------------
+    BeginMode2D(renderer.pcam.data()); // CAMERA2D
+    //------------------_-_-_-_-_-_-_
+
     ClearBackground(BLACK);
 
-    for (int i = 0; i < numCells; ++i) {
-        if (cellPool.active[i]) {
-            DrawCircleV(cellPool.transform[i].position, cellPool.radius[i], colors::GetNeonColor(colors::NEON_AZURE));
-        }
-    }
+    renderer.RenderCells(cellPool);
+    renderer.RenderFood(foodPool);
 
-    for (int i = 0; i < numFood; ++i) {
-        if (foodPool.active[i]) {
-            DrawCircleV(foodPool.transform[i].position, foodPool.radius[i], colors::GetNeonColor(colors::NEON_PINK));
-        }
-    }
-
-    EndDrawing();
+    //------------------_-_-_-_-_-_-_
+    EndMode2D();  // CAMERA2D
+    //------------------
+    EndDrawing(); // DRAWING
+    //------------------
 }
