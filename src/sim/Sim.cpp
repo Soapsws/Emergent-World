@@ -72,10 +72,21 @@ void Sim::Update() {
     UpdateCollisions();
 
     // USER INPUT
+
+    ProcessInput();
 }
 
 void Sim::ProcessInput() {
-    // (move to bottom)
+    // (self-reminder: move to bottom)
+    if (IsKeyDown(KEY_UP)) renderer.pcam.pan(270); // inverted y axis
+    if (IsKeyDown(KEY_DOWN)) renderer.pcam.pan(90);
+    if (IsKeyDown(KEY_LEFT)) renderer.pcam.pan(180);
+    if (IsKeyDown(KEY_RIGHT)) renderer.pcam.pan(0);
+
+    if (IsKeyDown(KEY_I)) renderer.pcam.zoom(1.0 + renderer.pcam.zoomScale * GetFrameTime()); // so it's capped regardless of device specs
+    if (IsKeyDown(KEY_O)) renderer.pcam.zoom(1/(1.0 + renderer.pcam.zoomScale * GetFrameTime()));
+
+    // implement following later
 }
 
 template <typename Pool>
@@ -85,13 +96,13 @@ void Sim::UpdateMovement(Pool& pool, int numEntities) {
             pool.transform[i].position.x += pool.transform[i].velocity.x;
             pool.transform[i].position.y += pool.transform[i].velocity.y;
             if (pool.transform[i].position.x < 0) {
-                pool.transform[i].position.x = settings::SCREEN_WIDTH;
-            } else if (pool.transform[i].position.x > settings::SCREEN_WIDTH) {
+                pool.transform[i].position.x = settings::WORLD_WIDTH;
+            } else if (pool.transform[i].position.x > settings::WORLD_WIDTH) {
                 pool.transform[i].position.x = 0;
             }
             if (pool.transform[i].position.y < 0) {
-                pool.transform[i].position.y = settings::SCREEN_HEIGHT;
-            } else if (pool.transform[i].position.y > settings::SCREEN_HEIGHT) {
+                pool.transform[i].position.y = settings::WORLD_HEIGHT;
+            } else if (pool.transform[i].position.y > settings::WORLD_HEIGHT) {
                 pool.transform[i].position.y = 0;
             }
         }
@@ -168,7 +179,7 @@ void Sim::Render() {
     //------------------
     BeginDrawing(); // DRAWING
     //------------------
-    BeginMode2D(renderer.pcam.data()); // CAMERA2D
+        BeginMode2D(renderer.pcam.data()); // CAMERA2D
     //------------------_-_-_-_-_-_-_
 
     ClearBackground(BLACK);
@@ -177,7 +188,7 @@ void Sim::Render() {
     renderer.RenderFood(foodPool);
 
     //------------------_-_-_-_-_-_-_
-    EndMode2D();  // CAMERA2D
+        EndMode2D();  // CAMERA2D
     //------------------
     EndDrawing(); // DRAWING
     //------------------

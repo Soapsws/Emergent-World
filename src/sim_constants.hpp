@@ -6,8 +6,8 @@ namespace settings {
     const int SCREEN_WIDTH = 1500;
     const int SCREEN_HEIGHT = 1000;
 
-    const int WORLD_WIDTH = 3000;
-    const int WORLD_HEIGHT = 2000;
+    const int WORLD_WIDTH = 4500;
+    const int WORLD_HEIGHT = 3000;
 }
 
 namespace world {
@@ -67,7 +67,7 @@ namespace cells {
         world::EntitySpecies::Cell,
         entity::TransformBounds{
             Vector2{ 0.0f, 0.0f },
-            Vector2{ static_cast<float>(settings::SCREEN_WIDTH), static_cast<float>(settings::SCREEN_HEIGHT) },
+            Vector2{ static_cast<float>(settings::WORLD_WIDTH), static_cast<float>(settings::WORLD_HEIGHT) },
             Vector2{ -1.0f, -1.0f },
             Vector2{ 1.0f, 1.0f }
         }, // transform
@@ -130,7 +130,7 @@ namespace food {
         world::FoodTypes::Food_All,
         entity::TransformBounds{
             Vector2{ 0.0f, 0.0f },
-            Vector2{ static_cast<float>(settings::SCREEN_WIDTH), static_cast<float>(settings::SCREEN_HEIGHT) },
+            Vector2{ static_cast<float>(settings::WORLD_WIDTH), static_cast<float>(settings::WORLD_HEIGHT) },
             Vector2{ -0.5f, -0.5f },
             Vector2{ 0.5f, 0.5f }
         },

@@ -11,14 +11,16 @@ class PlayerCamera {
 
         Vector2 zoomBounds { 0.2f, 5.0f };
 
-        float speed { 1.0f };
+        float speed { 3.0f };
         Vector2 speedBounds { 0.5, 2.0f };
 
     public:
         PlayerCamera(float screenHeight, float screenWidth);
         ~PlayerCamera();
 
-        void zoom(float increment);
+        float zoomScale;
+
+        void zoom(float factor);
         void follow(const Vector2& target);
 
         void toggleFollowing();

@@ -10,12 +10,13 @@ PlayerCamera::PlayerCamera(float screenWidth, float screenHeight) {
     cam2d.offset = Vector2{screenWidth * 0.5f, screenHeight * 0.5f}; // center in middle of screen
     cam2d.rotation = 0.0f; // unnecessary?
     cam2d.zoom = 1.0f;
+    zoomScale = 0.8;
 }
 
 PlayerCamera::~PlayerCamera() = default;
 
-void PlayerCamera::zoom(float increment) {
-    cam2d.zoom = std::clamp(cam2d.zoom + increment, zoomBounds.x, zoomBounds.y);
+void PlayerCamera::zoom(float factor) {
+    cam2d.zoom = std::clamp(cam2d.zoom * factor, zoomBounds.x, zoomBounds.y);
 }
 
 void PlayerCamera::follow(const Vector2& target) {
@@ -27,8 +28,9 @@ void PlayerCamera::toggleFollowing() {
     following = !following;
 }
 
+// Raylib uses degrees; C++ uses radians
 void PlayerCamera::pan(float angle) {
-    cam2d.target = Vector2Add(cam2d.target, Vector2{speed * cosf(angle), speed * sinf(angle)});
+    cam2d.target = Vector2Add(cam2d.target, Vector2{speed * cosf(angle * DEG2RAD), speed * sinf(angle * DEG2RAD)});
 }
 
 void PlayerCamera::resetTransform() {

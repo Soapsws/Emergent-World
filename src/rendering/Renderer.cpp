@@ -8,13 +8,7 @@
 #include "FoodPool.hpp"
 
 // another usage of initializer list
-Renderer::Renderer() : pcam(settings::SCREEN_WIDTH, settings::SCREEN_HEIGHT) {
-    
-}
-
-Renderer::~Renderer() {
-    
-}
+Renderer::Renderer() : pcam(settings::SCREEN_WIDTH, settings::SCREEN_HEIGHT) {}
 
 void Renderer::RenderCells(const CellPool& cellPool) {
     for (int i = 0; i < static_cast<int>(cellPool.active.size()); ++i) {
