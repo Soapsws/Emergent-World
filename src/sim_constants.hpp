@@ -5,6 +5,9 @@
 namespace settings {
     const int SCREEN_WIDTH = 1500;
     const int SCREEN_HEIGHT = 1000;
+
+    const int WORLD_WIDTH = 3000;
+    const int WORLD_HEIGHT = 2000;
 }
 
 namespace world {

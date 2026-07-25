@@ -4,13 +4,23 @@ project(EmergentWorld LANGUAGES CXX)
 
 add_executable(emergent_world
     src/main.cpp
-    src/Sim.cpp
-    src/CellPool.cpp
-    src/CellFactory.cpp
-    src/FoodPool.cpp
-    src/FoodFactory.cpp
-    src/Interactors.cpp
+    src/sim/Sim.cpp
+    src/pools/CellPool.cpp
+    src/factories/CellFactory.cpp
+    src/pools/FoodPool.cpp
+    src/factories/FoodFactory.cpp
+    src/sim/Interactors.cpp
+    src/rendering/Camera.cpp
 )
+
+target_include_directories(emergent_world PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/pools
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/factories
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/rendering
+)
+
 
 target_link_libraries(emergent_world PRIVATE raylib)
 
