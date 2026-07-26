@@ -46,6 +46,7 @@ void Renderer::RenderWalls() {
 }
 
 
+
 // This does NOT need to run every frame unless the texture's contents change
 void Renderer::ConfigWallsTexture(const std::vector<Rectangle>& walls) {
     BeginTextureMode(wallsTexture);
