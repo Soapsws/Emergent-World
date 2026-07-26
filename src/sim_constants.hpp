@@ -10,6 +10,9 @@ namespace settings {
     const int WORLD_HEIGHT = 3000;
 }
 
+// Foward declaration - see other implementation below
+inline float GetRandomFloat(float min, float max);
+
 namespace world {
     const int ENTITY_SPECIES_COUNT = 1;
     const int FOOD_TYPE_COUNT = 1;
@@ -52,7 +55,7 @@ namespace entity {
 }
 
 namespace cells {
-    const int MAX_CELLS = 100;
+    const int MAX_CELLS = 150;
 
     struct CellSpawnConfig {
         world::EntitySpecies species;
@@ -71,10 +74,10 @@ namespace cells {
             Vector2{ -1.0f, -1.0f },
             Vector2{ 1.0f, 1.0f }
         }, // transform
-        entity::SpawningBounds{ Vector2{ 5.0f, 10.0f }, Vector2{ 5.0f, 10.0f } }, // spawning
-        Vector2{ 3.0f, 8.0f },     // radius
+        entity::SpawningBounds{ Vector2{ 50.0f, 100.0f }, Vector2{ 5.0f, 10.0f } }, // spawning <lifetime, cooldown>
+        Vector2{ 6.0f, 16.0f },     // radius
         Vector2{ 50.0f, 100.0f }, // health
-        Vector2{ 5.0f, 10.0f }      // dps
+        Vector2{ 100.0f, 200.0f }      // dps
     };
 
     struct CellData {
@@ -97,8 +100,8 @@ namespace cells {
                 static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.transformBounds.positionMin.y), static_cast<int>(cells::DEFAULT.transformBounds.positionMax.y)))
             },
             Vector2{
-                static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.transformBounds.velocityMin.x), static_cast<int>(cells::DEFAULT.transformBounds.velocityMax.x))),
-                static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.transformBounds.velocityMin.y), static_cast<int>(cells::DEFAULT.transformBounds.velocityMax.y)))
+                GetRandomFloat(cells::DEFAULT.transformBounds.velocityMin.x, cells::DEFAULT.transformBounds.velocityMax.x),
+                GetRandomFloat(cells::DEFAULT.transformBounds.velocityMin.y, cells::DEFAULT.transformBounds.velocityMax.y)
             }
         },
 
@@ -107,16 +110,22 @@ namespace cells {
             static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.spawningBounds.cooldownBounds.x), static_cast<int>(cells::DEFAULT.spawningBounds.cooldownBounds.y)))
         },
 
-        static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.radiusBounds.x), static_cast<int>(cells::DEFAULT.radiusBounds.y))),
-        static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.healthBounds.x), static_cast<int>(cells::DEFAULT.healthBounds.y))),
-        0.0f,
+        GetRandomFloat(DEFAULT.radiusBounds.x, DEFAULT.radiusBounds.y),
+        GetRandomFloat(DEFAULT.healthBounds.x, DEFAULT.healthBounds.y),
+        GetRandomFloat(DEFAULT.dpsBounds.x, DEFAULT.dpsBounds.y),
         true
     };
     }
 }
 
+// (Utility, temporary - relocate this later)
+inline float GetRandomFloat(float min, float max) {
+    float scale = (float)GetRandomValue(0, 2147483647) / 2147483647.0f;
+    return min + scale * (max - min);
+}
+
 namespace food {
-    const int MAX_NATURAL_FOOD = 30;
+    const int MAX_NATURAL_FOOD = 60;
 
     struct FoodSpawnConfig {
         world::FoodTypes type;
@@ -134,9 +143,9 @@ namespace food {
             Vector2{ -0.5f, -0.5f },
             Vector2{ 0.5f, 0.5f }
         },
-        entity::SpawningBounds{ Vector2{ 5.0f, 10.0f }, Vector2{ 5.0f, 10.0f } },
-        Vector2{ 2.0f, 5.0f },
-        Vector2{ 10.0f, 20.0f }
+        entity::SpawningBounds{ Vector2{ 50.0f, 100.0f }, Vector2{ 5.0f, 10.0f } },
+        Vector2{ 5.0f, 10.0f }, // radius
+        Vector2{ 0.5f, 0.8f } // hp (TESTING VALUES)
     };
 
     struct FoodData {
@@ -158,16 +167,16 @@ namespace food {
                     static_cast<float>(GetRandomValue(static_cast<int>(DEFAULT.transformBounds.positionMin.y), static_cast<int>(DEFAULT.transformBounds.positionMax.y)))
                 },
                 Vector2{
-                    static_cast<float>(GetRandomValue(static_cast<int>(DEFAULT.transformBounds.velocityMin.x), static_cast<int>(DEFAULT.transformBounds.velocityMax.x))),
-                    static_cast<float>(GetRandomValue(static_cast<int>(DEFAULT.transformBounds.velocityMin.y), static_cast<int>(DEFAULT.transformBounds.velocityMax.y)))
+                    GetRandomFloat(DEFAULT.transformBounds.velocityMin.x, DEFAULT.transformBounds.velocityMax.x),
+                    GetRandomFloat(DEFAULT.transformBounds.velocityMin.y, DEFAULT.transformBounds.velocityMax.y)
                 }
             },
             entity::Spawning{
                 static_cast<float>(GetRandomValue(static_cast<int>(DEFAULT.spawningBounds.lifetimeBounds.x), static_cast<int>(DEFAULT.spawningBounds.lifetimeBounds.y))),
                 static_cast<float>(GetRandomValue(static_cast<int>(DEFAULT.spawningBounds.cooldownBounds.x), static_cast<int>(DEFAULT.spawningBounds.cooldownBounds.y)))
             },
-            static_cast<float>(GetRandomValue(static_cast<int>(DEFAULT.radiusBounds.x), static_cast<int>(DEFAULT.radiusBounds.y))),
-            static_cast<float>(GetRandomValue(static_cast<int>(DEFAULT.healthBounds.x), static_cast<int>(DEFAULT.healthBounds.y))),
+            GetRandomFloat(DEFAULT.radiusBounds.x, DEFAULT.radiusBounds.y),
+            GetRandomFloat(DEFAULT.healthBounds.x, DEFAULT.healthBounds.y),
             true
         };
     }

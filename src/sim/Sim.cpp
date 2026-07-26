@@ -122,6 +122,9 @@ void Sim::UpdateSpawning(Pool& pool, Factory& factory, DefaultSpawn defaultSpawn
             if (pool.spawning[i].lifetime <= 0) {
                 pool.active[i] = false;
             }
+            if (pool.health[i] <= 0) {
+                pool.active[i] = false;
+            }
         } else {
             pool.spawning[i].cooldown -= t;
             if (pool.spawning[i].cooldown <= 0) {
@@ -142,15 +145,31 @@ void Sim::UpdateCollisions() {
         interactors.CellCell(poolA, indexA, poolB, indexB);
     };
 
+    auto cellFoodInteractor = [&](auto& poolA,  int indexA, auto& poolB, int indexB) {
+        interactors.CellFood(poolA, indexA, poolB, indexB);
+    };
+
+    auto foodCellInteractor = [&](auto& poolA,  int indexA, auto& poolB, int indexB) {
+        ;
+        // all handled in cell-food (?)
+    };
+
+
+    auto foodFoodInteractor = [&](auto& poolA, int indexA, auto& poolB, int indexB) {
+        interactors.FoodFood(poolA, indexA, poolB, indexB);
+    };
+
     CircleCircleCollision(cellPool, cellCellInteractor, cellPool, cellCellInteractor);
-    // CircleCircleCollision(cellPool, cellFoodInteractor, foodPool, foodCellInteractor);
-    // CircleCircleCollision(foodPool, foodFoodInteractor, foodPool, foodFoodInteractor);
+    CircleCircleCollision(cellPool, cellFoodInteractor, foodPool, foodCellInteractor);
+    CircleCircleCollision(foodPool, foodFoodInteractor, foodPool, foodFoodInteractor);
 }
 
 template <typename CircularEntityPool1, typename Interact1, typename CircularEntityPool2, typename Interact2>
 void Sim::CircleCircleCollision(CircularEntityPool1& pool1, Interact1 interactor1, CircularEntityPool2& pool2, Interact2 interactor2) {
     // If both pools are actually the same object, avoid duplicate checks and self-collision
-    bool samePool = (std::addressof(pool1) == std::addressof(pool2));
+    bool samePool =
+        ( static_cast<const void*>(std::addressof(pool1)) ==
+        static_cast<const void*>(std::addressof(pool2)) );
 
     for (int i = 0; i < static_cast<int>(pool1.active.size()); ++i) {
         if (!pool1.active[i]) continue;

@@ -7,8 +7,8 @@
 // the compiler needs to see the declaration before instantiation.
 #endif
 
-template <typename CircularPool>
-void SimpleCircularBounce(CircularPool& pool1, int index1, CircularPool& pool2, int index2);
+template <typename CircularPool1, typename CircularPool2>
+void SimpleCircularBounce(CircularPool1& pool1, int index1, CircularPool2& pool2, int index2, float restitution);
 
 // Empty for now
 Interactors::Interactors() {}
@@ -17,22 +17,23 @@ Interactors::~Interactors() {}
 // Interactors
 
 void Interactors::CellCell(CellPool& pool1, int index1, CellPool& pool2, int index2) {
-    SimpleCircularBounce(pool1, index1, pool2, index2);
+    SimpleCircularBounce(pool1, index1, pool2, index2, 0.85f);
 }
 
 void Interactors::CellFood(CellPool& pool1, int index1, FoodPool& pool2, int index2) {
-    // Implement damage
+    SimpleCircularBounce(pool1, index1, pool2, index2, 0.1f);
+    pool2.health[index2] -= pool1.dps[index1] * GetFrameTime();
 }
 
 void Interactors::FoodFood(FoodPool& pool1, int index1, FoodPool& pool2, int index2) {
-    SimpleCircularBounce(pool1, index1, pool2, index2);
+    SimpleCircularBounce(pool1, index1, pool2, index2, 0.4f);
 }
 
 
 // Utility
 
-template <typename CircularPool>
-void SimpleCircularBounce(CircularPool& pool1, int index1, CircularPool& pool2, int index2) {
+template <typename CircularPool1, typename CircularPool2>
+void SimpleCircularBounce(CircularPool1& pool1, int index1, CircularPool2& pool2, int index2, float restitution) {
     float radSum = pool1.radius[index1] + pool2.radius[index2];
     float dist = Vector2Distance(pool1.transform[index1].position, pool2.transform[index2].position);
     float overlap = radSum - dist;
@@ -46,7 +47,6 @@ void SimpleCircularBounce(CircularPool& pool1, int index1, CircularPool& pool2, 
 
     // Impulse & Restitution
     if (velAlongNormal < 0) {
-        float restitution = 0.85f; // Bounciness 
         float impulseMagnitude = -(1.0f + restitution) * velAlongNormal / 2.0f;
         Vector2 impulse = Vector2Scale(normal, impulseMagnitude);
         
