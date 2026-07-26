@@ -1,5 +1,7 @@
 #pragma once
 
+#include <raylib.h>
+
 #include "Camera.hpp"
 #include "CellPool.hpp"
 #include "FoodPool.hpp"
@@ -7,12 +9,18 @@
 struct Renderer {
     PlayerCamera pcam;
 
+    RenderTexture2D wallsTexture;
+
+    bool isInitialized { false };
+
     Renderer();
-    ~Renderer() = default;
+    ~Renderer();
+
+    void ManualInit(); // to make sure it's loaded after InitWindow.
 
     void RenderCells(const CellPool& cellPool);
     void RenderFood(const FoodPool& foodPool);
+    void RenderWalls();
 
-    
-
+    void ConfigWallsTexture(const std::vector<Rectangle>& walls);
 };

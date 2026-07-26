@@ -5,6 +5,7 @@
 #include "FoodPool.hpp"
 #include "FoodFactory.hpp"
 #include "Renderer.hpp"
+#include "Walls.hpp"
 
 class Sim {
 
@@ -39,6 +40,8 @@ class Sim {
             
         void Render();
 
+        void ManualTestWalls();
+
         Renderer renderer;
 
         int numCells;
@@ -47,5 +50,6 @@ class Sim {
         CellFactory cellFactory;
         FoodPool foodPool;
         FoodFactory foodFactory;
+        Walls walls;
 
 };

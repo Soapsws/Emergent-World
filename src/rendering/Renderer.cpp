@@ -8,7 +8,17 @@
 #include "FoodPool.hpp"
 
 // another usage of initializer list
-Renderer::Renderer() : pcam(settings::SCREEN_WIDTH, settings::SCREEN_HEIGHT) {}
+Renderer::Renderer() : pcam(settings::SCREEN_WIDTH, settings::SCREEN_HEIGHT) { }
+
+// RAII to have the acquired reference (the rendertexture) be destroyed when the renderer is destroyed
+Renderer::~Renderer() {
+    if (isInitialized) UnloadRenderTexture(wallsTexture);
+}
+
+void Renderer::ManualInit() {
+    wallsTexture = LoadRenderTexture(settings::WORLD_WIDTH, settings::WORLD_HEIGHT);
+    isInitialized = true;
+}
 
 void Renderer::RenderCells(const CellPool& cellPool) {
     for (int i = 0; i < static_cast<int>(cellPool.active.size()); ++i) {
@@ -24,4 +34,26 @@ void Renderer::RenderFood(const FoodPool& foodPool) {
             DrawCircleV(foodPool.transform[i].position, foodPool.radius[i], colors::GetNeonColor(colors::NEON_PINK));
         }
     }
+}
+
+void Renderer::RenderWalls() {
+    // Note: textures are vertically flipped, fix if necessary
+    DrawTexture(
+        wallsTexture.texture,
+        0, 0,
+        WHITE
+    );
+}
+
+
+// This does NOT need to run every frame unless the texture's contents change
+void Renderer::ConfigWallsTexture(const std::vector<Rectangle>& walls) {
+    BeginTextureMode(wallsTexture);
+
+    ClearBackground(BLANK); // invisible background
+    for (int i = 0; i < static_cast<int>(walls.size()); ++i) {
+        DrawRectangleRec(walls[i], colors::GetNeonColor(colors::NEON_WHITE));
+    }
+
+    EndTextureMode();
 }

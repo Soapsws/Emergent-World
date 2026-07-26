@@ -192,7 +192,8 @@ namespace colors {
     constexpr int NEON_HOT_PINK = 12;
     constexpr int NEON_CHARTREUSE = 13;
     constexpr int NEON_CORAL = 14;
-    constexpr int NEON_COUNT = 15;
+    constexpr int NEON_WHITE = 15;
+    constexpr int NEON_COUNT = 16;
 
     inline const Color NEON_COLORS[NEON_COUNT] = {
         /* NEON_MAGENTA_STD */ Color{ 255, 0, 255, 255 },
@@ -209,7 +210,8 @@ namespace colors {
         /* NEON_AZURE */ Color{ 0x00, 0xB0, 0xFF, 0xFF },
         /* NEON_HOT_PINK */ Color{ 0xFF, 0x3F, 0x80, 0xFF },
         /* NEON_CHARTREUSE */ Color{ 0x7C, 0xFF, 0x00, 0xFF },
-        /* NEON_CORAL */ Color{ 0xFF, 0x20, 0x20, 0xFF }
+        /* NEON_CORAL */ Color{ 0xFF, 0x20, 0x20, 0xFF },
+        /* NEON_WHITE */ Color{ 0xD8, 0xF2, 0xFF, 0xFF }
     };
 
     inline const char* NEON_COLOR_NAMES[NEON_COUNT] = {
@@ -227,7 +229,8 @@ namespace colors {
         "NEON_AZURE",
         "NEON_HOT_PINK",
         "NEON_CHARTREUSE",
-        "NEON_CORAL"
+        "NEON_CORAL",
+        "NEON_WHITE"
     };
 
     inline Color GetNeonColor(int id) {

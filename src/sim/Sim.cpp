@@ -29,7 +29,7 @@ The member initialization list initializes class members before the constructor 
 
 
 Sim::Sim() : numCells(0), numFood(0), cellPool(cells::MAX_CELLS), cellFactory(cellPool), 
-                foodPool(food::MAX_NATURAL_FOOD), foodFactory(foodPool), renderer() {
+                foodPool(food::MAX_NATURAL_FOOD), foodFactory(foodPool), renderer(), walls() {
     for (int i = 0; i < cells::MAX_CELLS; ++i) {
         cells::CellData data = cells::defaultSpawn();
         int id = cellFactory.CreateCell(data);
@@ -44,6 +44,10 @@ Sim::Sim() : numCells(0), numFood(0), cellPool(cells::MAX_CELLS), cellFactory(ce
 
     InitWindow(settings::SCREEN_WIDTH, settings::SCREEN_HEIGHT, "Emergent World");
     SetTargetFPS(60);
+
+    renderer.ManualInit();
+    ManualTestWalls();
+    renderer.ConfigWallsTexture(walls.walls);
 }
 
 Sim::~Sim() {
@@ -186,6 +190,8 @@ void Sim::Render() {
 
     renderer.RenderCells(cellPool);
     renderer.RenderFood(foodPool);
+    
+    renderer.RenderWalls(); // NEW
 
     //------------------_-_-_-_-_-_-_
         EndMode2D();  // CAMERA2D
@@ -193,3 +199,16 @@ void Sim::Render() {
     EndDrawing(); // DRAWING
     //------------------
 }
+
+// TEMPORARY MANUAL TEST: remove this function and its constructor call when real walls are ready.
+void Sim::ManualTestWalls() {
+    constexpr float wallThickness = 50.0f;
+    const float worldWidth = static_cast<float>(settings::WORLD_WIDTH);
+    const float worldHeight = static_cast<float>(settings::WORLD_HEIGHT);
+
+    walls.AddWall(0.0f, 0.0f, worldWidth, wallThickness); // top
+    walls.AddWall(0.0f, worldHeight - wallThickness, worldWidth, wallThickness); // bottom
+    walls.AddWall(0.0f, wallThickness, wallThickness, worldHeight - 2.0f * wallThickness); // left
+    walls.AddWall(worldWidth - wallThickness, wallThickness, wallThickness, worldHeight - 2.0f * wallThickness); // right
+}
+
