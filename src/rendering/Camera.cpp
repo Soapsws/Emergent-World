@@ -33,6 +33,14 @@ void PlayerCamera::pan(float angle) {
     cam2d.target = Vector2Add(cam2d.target, Vector2{speed * cosf(angle * DEG2RAD), speed * sinf(angle * DEG2RAD)});
 }
 
+float PlayerCamera::panSpeed() const {
+    return speed;
+}
+
+void PlayerCamera::setPanSpeed(float value) {
+    speed = std::clamp(value, speedBounds.x, speedBounds.y);
+}
+
 void PlayerCamera::resetTransform() {
     cam2d.target = Vector2{settings::WORLD_WIDTH * 0.5f, settings::WORLD_HEIGHT * 0.5f};
     cam2d.zoom = 1.0f;

@@ -29,14 +29,16 @@ The member initialization list initializes class members before the constructor 
 
 
 Sim::Sim() : numCells(0), numFood(0), cellPool(cells::MAX_CELLS), cellFactory(cellPool), 
-                foodPool(food::MAX_NATURAL_FOOD), foodFactory(foodPool), renderer(), walls(), gui(true) {
-    for (int i = 0; i < cells::MAX_CELLS; ++i) {
+                foodPool(food::MAX_NATURAL_FOOD), foodFactory(foodPool), renderer(), walls(),
+                maxCells(cells::MAX_CELLS), maxFood(food::MAX_NATURAL_FOOD),
+                gui(true, renderer.pcam, maxCells, maxFood) {
+    for (int i = 0; i < maxCells; ++i) {
         cells::CellData data = cells::defaultSpawn();
         int id = cellFactory.CreateCell(data);
         if (id >= 0) ++numCells;
     }
 
-    for (int i = 0; i < food::MAX_NATURAL_FOOD; ++i) {
+    for (int i = 0; i < maxFood; ++i) {
         food::FoodData data = food::defaultSpawn();
         int id = foodFactory.CreateFood(data);
         if (id >= 0) ++numFood;
@@ -62,16 +64,16 @@ void Sim::Run() {
 }
 
 void Sim::Update() {
-    UpdateMovement(cellPool, numCells);
+    UpdateMovement(cellPool, maxCells);
     // C++ lambda: [what to capture] { body }
     // Below is a callable that takes no arguments and returns a new entity spawn data
             // Full form: [ capture_clause ] ( parameter_list ) specifiers -> return_type { body }
             // "-> return type" can be omitted unless it must be specified.
     // If you just pass the function you'd have to call it INSIDE the function and manually capture the function.
-    UpdateSpawning(cellPool, cellFactory, [] { return cells::defaultSpawn(); }, numCells);
+    UpdateSpawning(cellPool, cellFactory, [] { return cells::defaultSpawn(); }, maxCells);
 
-    UpdateMovement(foodPool, numFood);
-    UpdateSpawning(foodPool, foodFactory, [] { return food::defaultSpawn(); }, numFood);
+    UpdateMovement(foodPool, maxFood);
+    UpdateSpawning(foodPool, foodFactory, [] { return food::defaultSpawn(); }, maxFood);
 
     UpdateCollisions();
 
@@ -116,6 +118,11 @@ void Sim::UpdateMovement(Pool& pool, int numEntities) {
 template <typename Pool, typename Factory, typename DefaultSpawn>
 void Sim::UpdateSpawning(Pool& pool, Factory& factory, DefaultSpawn defaultSpawn, int numEntities) {
     float t = GetFrameTime();
+
+    for (int i = numEntities; i < static_cast<int>(pool.active.size()); ++i) {
+        pool.active[i] = false;
+    }
+
     for (int i = 0; i < numEntities; ++i) {
         if (pool.active[i]) {
             pool.spawning[i].lifetime -= t;
@@ -234,4 +241,3 @@ void Sim::ManualTestWalls() {
     walls.AddWall(0.0f, wallThickness, wallThickness, worldHeight - 2.0f * wallThickness); // left
     walls.AddWall(worldWidth - wallThickness, wallThickness, wallThickness, worldHeight - 2.0f * wallThickness); // right
 }
-

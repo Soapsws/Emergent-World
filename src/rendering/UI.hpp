@@ -1,8 +1,10 @@
 #pragma once
 
+#include "Camera.hpp"
+
 struct UI {
-    
-    UI(bool useDarkTheme);
+
+    UI(bool useDarkTheme, PlayerCamera& camera, int& maxCells, int& maxFood);
     ~UI();
 
     /*
@@ -18,5 +20,10 @@ struct UI {
     void End();
 
     void Draw();
+
+private:
+    PlayerCamera& camera;
+    int& maxCells;
+    int& maxFood;
 
 };

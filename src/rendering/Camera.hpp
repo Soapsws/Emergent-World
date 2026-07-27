@@ -12,7 +12,7 @@ class PlayerCamera {
         Vector2 zoomBounds { 0.2f, 5.0f };
 
         float speed { 3.0f };
-        Vector2 speedBounds { 0.5, 2.0f };
+        Vector2 speedBounds { 0.5, 8.0f };
 
     public:
         PlayerCamera(float screenHeight, float screenWidth);
@@ -26,6 +26,9 @@ class PlayerCamera {
         void toggleFollowing();
 
         void pan(float angle);
+
+        float panSpeed() const;
+        void setPanSpeed(float value);
 
         void resetTransform();
 

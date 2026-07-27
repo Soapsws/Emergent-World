@@ -6,7 +6,7 @@
 #include "FoodFactory.hpp"
 #include "Renderer.hpp"
 #include "Walls.hpp"
-#include "UI.hpp";
+#include "UI.hpp"
 
 class Sim {
 
@@ -52,6 +52,8 @@ class Sim {
         FoodPool foodPool;
         FoodFactory foodFactory;
         Walls walls;
+        int maxCells;
+        int maxFood;
         UI gui;
 
 };

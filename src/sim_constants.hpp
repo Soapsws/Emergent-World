@@ -54,7 +54,7 @@ namespace entity {
 }
 
 namespace cells {
-    const int MAX_CELLS = 150;
+    const int MAX_CELLS = 250;
 
     struct CellSpawnConfig {
         world::EntitySpecies species;
@@ -118,7 +118,7 @@ namespace cells {
 }
 
 namespace food {
-    const int MAX_NATURAL_FOOD = 60;
+    const int MAX_NATURAL_FOOD = 120;
 
     struct FoodSpawnConfig {
         world::FoodTypes type;
