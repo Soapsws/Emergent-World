@@ -2,6 +2,8 @@
 #include <raylib.h>
 #include <utility>
 
+#include "Math.hpp"
+
 namespace settings {
     const int SCREEN_WIDTH = 1500;
     const int SCREEN_HEIGHT = 1000;
@@ -9,9 +11,6 @@ namespace settings {
     const int WORLD_WIDTH = 4500;
     const int WORLD_HEIGHT = 3000;
 }
-
-// Foward declaration - see other implementation below
-inline float GetRandomFloat(float min, float max);
 
 namespace world {
     const int ENTITY_SPECIES_COUNT = 1;
@@ -100,8 +99,8 @@ namespace cells {
                 static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.transformBounds.positionMin.y), static_cast<int>(cells::DEFAULT.transformBounds.positionMax.y)))
             },
             Vector2{
-                GetRandomFloat(cells::DEFAULT.transformBounds.velocityMin.x, cells::DEFAULT.transformBounds.velocityMax.x),
-                GetRandomFloat(cells::DEFAULT.transformBounds.velocityMin.y, cells::DEFAULT.transformBounds.velocityMax.y)
+                math::GetRandomFloat(cells::DEFAULT.transformBounds.velocityMin.x, cells::DEFAULT.transformBounds.velocityMax.x),
+                math::GetRandomFloat(cells::DEFAULT.transformBounds.velocityMin.y, cells::DEFAULT.transformBounds.velocityMax.y)
             }
         },
 
@@ -110,18 +109,12 @@ namespace cells {
             static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.spawningBounds.cooldownBounds.x), static_cast<int>(cells::DEFAULT.spawningBounds.cooldownBounds.y)))
         },
 
-        GetRandomFloat(DEFAULT.radiusBounds.x, DEFAULT.radiusBounds.y),
-        GetRandomFloat(DEFAULT.healthBounds.x, DEFAULT.healthBounds.y),
-        GetRandomFloat(DEFAULT.dpsBounds.x, DEFAULT.dpsBounds.y),
+        math::GetRandomFloat(DEFAULT.radiusBounds.x, DEFAULT.radiusBounds.y),
+        math::GetRandomFloat(DEFAULT.healthBounds.x, DEFAULT.healthBounds.y),
+        math::GetRandomFloat(DEFAULT.dpsBounds.x, DEFAULT.dpsBounds.y),
         true
     };
     }
-}
-
-// (Utility, temporary - relocate this later)
-inline float GetRandomFloat(float min, float max) {
-    float scale = (float)GetRandomValue(0, 2147483647) / 2147483647.0f;
-    return min + scale * (max - min);
 }
 
 namespace food {
@@ -167,16 +160,16 @@ namespace food {
                     static_cast<float>(GetRandomValue(static_cast<int>(DEFAULT.transformBounds.positionMin.y), static_cast<int>(DEFAULT.transformBounds.positionMax.y)))
                 },
                 Vector2{
-                    GetRandomFloat(DEFAULT.transformBounds.velocityMin.x, DEFAULT.transformBounds.velocityMax.x),
-                    GetRandomFloat(DEFAULT.transformBounds.velocityMin.y, DEFAULT.transformBounds.velocityMax.y)
+                    math::GetRandomFloat(DEFAULT.transformBounds.velocityMin.x, DEFAULT.transformBounds.velocityMax.x),
+                    math::GetRandomFloat(DEFAULT.transformBounds.velocityMin.y, DEFAULT.transformBounds.velocityMax.y)
                 }
             },
             entity::Spawning{
                 static_cast<float>(GetRandomValue(static_cast<int>(DEFAULT.spawningBounds.lifetimeBounds.x), static_cast<int>(DEFAULT.spawningBounds.lifetimeBounds.y))),
                 static_cast<float>(GetRandomValue(static_cast<int>(DEFAULT.spawningBounds.cooldownBounds.x), static_cast<int>(DEFAULT.spawningBounds.cooldownBounds.y)))
             },
-            GetRandomFloat(DEFAULT.radiusBounds.x, DEFAULT.radiusBounds.y),
-            GetRandomFloat(DEFAULT.healthBounds.x, DEFAULT.healthBounds.y),
+            math::GetRandomFloat(DEFAULT.radiusBounds.x, DEFAULT.radiusBounds.y),
+            math::GetRandomFloat(DEFAULT.healthBounds.x, DEFAULT.healthBounds.y),
             true
         };
     }

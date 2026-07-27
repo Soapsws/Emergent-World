@@ -21,6 +21,7 @@ target_include_directories(emergent_world PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/factories
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sim
     ${CMAKE_CURRENT_SOURCE_DIR}/src/rendering
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utility
 )
 
 
