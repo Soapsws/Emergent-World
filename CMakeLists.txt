@@ -64,6 +64,7 @@ add_executable(emergent_world
     src/rendering/Camera.cpp
     src/rendering/Renderer.cpp
     src/sim/Walls.cpp
+    src/rendering/UI.cpp
 )
 
 target_include_directories(emergent_world PRIVATE

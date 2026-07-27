@@ -29,7 +29,7 @@ The member initialization list initializes class members before the constructor 
 
 
 Sim::Sim() : numCells(0), numFood(0), cellPool(cells::MAX_CELLS), cellFactory(cellPool), 
-                foodPool(food::MAX_NATURAL_FOOD), foodFactory(foodPool), renderer(), walls() {
+                foodPool(food::MAX_NATURAL_FOOD), foodFactory(foodPool), renderer(), walls(), gui(true) {
     for (int i = 0; i < cells::MAX_CELLS; ++i) {
         cells::CellData data = cells::defaultSpawn();
         int id = cellFactory.CreateCell(data);
@@ -199,24 +199,28 @@ void Sim::CircleCircleCollision(CircularEntityPool1& pool1, Interact1 interactor
 
 
 void Sim::Render() {
-    //------------------
     BeginDrawing(); // DRAWING
-    //------------------
+
         BeginMode2D(renderer.pcam.data()); // CAMERA2D
-    //------------------_-_-_-_-_-_-_
 
-    ClearBackground(BLACK);
+            ClearBackground(BLACK);
 
-    renderer.RenderCells(cellPool);
-    renderer.RenderFood(foodPool);
+            renderer.RenderCells(cellPool);
+            renderer.RenderFood(foodPool);
     
-    renderer.RenderWalls(); // NEW
+            renderer.RenderWalls(); // NEW
 
-    //------------------_-_-_-_-_-_-_
         EndMode2D();  // CAMERA2D
-    //------------------
+
+        // ~~~~~~~~ UI outside of Camera2D block so it tracks with the frame, not the world
+
+        gui.Begin();
+
+            gui.Draw();
+
+        gui.End();
+
     EndDrawing(); // DRAWING
-    //------------------
 }
 
 // TEMPORARY MANUAL TEST: remove this function and its constructor call when real walls are ready.
