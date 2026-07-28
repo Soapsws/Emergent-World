@@ -10,6 +10,7 @@ namespace settings {
 
     const int WORLD_WIDTH = 4500;
     const int WORLD_HEIGHT = 3000;
+    const int WORLD_EDGE_SPAWN_OFFSET = 100;
 }
 
 namespace world {
@@ -68,8 +69,8 @@ namespace cells {
     inline const CellSpawnConfig DEFAULT {
         world::EntitySpecies::Cell,
         entity::TransformBounds{
-            Vector2{ 0.0f, 0.0f },
-            Vector2{ static_cast<float>(settings::WORLD_WIDTH), static_cast<float>(settings::WORLD_HEIGHT) },
+            Vector2{ static_cast<float>(settings::WORLD_EDGE_SPAWN_OFFSET), static_cast<float>(settings::WORLD_EDGE_SPAWN_OFFSET) },
+            Vector2{ static_cast<float>(settings::WORLD_WIDTH - settings::WORLD_EDGE_SPAWN_OFFSET), static_cast<float>(settings::WORLD_HEIGHT - settings::WORLD_EDGE_SPAWN_OFFSET) },
             Vector2{ -1.0f, -1.0f },
             Vector2{ 1.0f, 1.0f }
         }, // transform
@@ -131,8 +132,8 @@ namespace food {
     inline const FoodSpawnConfig DEFAULT {
         world::FoodTypes::Food_All,
         entity::TransformBounds{
-            Vector2{ 0.0f, 0.0f },
-            Vector2{ static_cast<float>(settings::WORLD_WIDTH), static_cast<float>(settings::WORLD_HEIGHT) },
+            Vector2{ static_cast<float>(settings::WORLD_EDGE_SPAWN_OFFSET), static_cast<float>(settings::WORLD_EDGE_SPAWN_OFFSET) },
+            Vector2{ static_cast<float>(settings::WORLD_WIDTH - settings::WORLD_EDGE_SPAWN_OFFSET), static_cast<float>(settings::WORLD_HEIGHT - settings::WORLD_EDGE_SPAWN_OFFSET) },
             Vector2{ -0.5f, -0.5f },
             Vector2{ 0.5f, 0.5f }
         },

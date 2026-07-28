@@ -119,6 +119,7 @@ template <typename Pool, typename Factory, typename DefaultSpawn>
 void Sim::UpdateSpawning(Pool& pool, Factory& factory, DefaultSpawn defaultSpawn, int numEntities) {
     float t = GetFrameTime();
 
+    // to handle dynamic pool size adjustments
     for (int i = numEntities; i < static_cast<int>(pool.active.size()); ++i) {
         pool.active[i] = false;
     }
@@ -161,18 +162,38 @@ void Sim::UpdateCollisions() {
         // all handled in cell-food (?)
     };
 
-
     auto foodFoodInteractor = [&](auto& poolA, int indexA, auto& poolB, int indexB) {
         interactors.FoodFood(poolA, indexA, poolB, indexB);
     };
 
-    CircleCircleCollision(cellPool, cellCellInteractor, cellPool, cellCellInteractor);
-    CircleCircleCollision(cellPool, cellFoodInteractor, foodPool, foodCellInteractor);
-    CircleCircleCollision(foodPool, foodFoodInteractor, foodPool, foodFoodInteractor);
+    auto cellWallInteractor = [&](auto& poolA, int indexA, auto& poolB, int indexB) {
+        interactors.CellWall(poolA, indexA, poolB, indexB);
+    };
+
+    auto wallCellInteractor = [&](auto& poolA, int indexA, auto& poolB, int indexB) {
+        ;
+    };
+
+    auto foodWallInteractor = [&](auto& poolA, int indexA, auto& poolB, int indexB) {
+        interactors.FoodWall(poolA, indexA, poolB, indexB);
+    };
+
+    auto wallFoodInteractor = [&](auto& poolA, int indexA, auto& poolB, int indexB) {
+        ;
+    };
+
+    CEntityCEntityCollision(cellPool, cellCellInteractor, cellPool, cellCellInteractor);
+    CEntityCEntityCollision(cellPool, cellFoodInteractor, foodPool, foodCellInteractor);
+    CEntityCEntityCollision(foodPool, foodFoodInteractor, foodPool, foodFoodInteractor);
+
+    CEntityRObjectCollision(cellPool, cellWallInteractor, walls, wallCellInteractor);
+    CEntityRObjectCollision(foodPool, foodWallInteractor, walls, wallFoodInteractor);
+
 }
 
+// Circular Entity - Circular Entity Collision. name shortened to save space
 template <typename CircularEntityPool1, typename Interact1, typename CircularEntityPool2, typename Interact2>
-void Sim::CircleCircleCollision(CircularEntityPool1& pool1, Interact1 interactor1, CircularEntityPool2& pool2, Interact2 interactor2) {
+void Sim::CEntityCEntityCollision(CircularEntityPool1& pool1, Interact1 interactor1, CircularEntityPool2& pool2, Interact2 interactor2) {
     // If both pools are actually the same object, avoid duplicate checks and self-collision
     bool samePool =
         ( static_cast<const void*>(std::addressof(pool1)) ==
@@ -199,6 +220,23 @@ void Sim::CircleCircleCollision(CircularEntityPool1& pool1, Interact1 interactor
                     interactor1(pool1, i, pool2, j);
                     interactor2(pool2, j, pool1, i);
                 }
+            }
+        }
+    }
+}
+
+// Circular Entity - Rectangular Object Collision
+template <typename CircularEntityPool, typename Interact1, typename RectangularObjectPool, typename Interact2>
+void Sim::CEntityRObjectCollision(CircularEntityPool& pool1, Interact1 interactor1, RectangularObjectPool& pool2, Interact2 interactor2) {
+    for (int i = 0; i < static_cast<int>(pool1.active.size()); ++i) {
+        if (!pool1.active[i]) continue;
+        for (int j = 0; j < static_cast<int>(pool2.walls.size()); ++j) {
+            if (CheckCollisionCircleRec(
+                    pool1.transform[i].position,
+                    pool1.radius[i],
+                    pool2.walls[j])) {
+                interactor1(pool1, i, pool2, j);
+                interactor2(pool2, j, pool1, i);
             }
         }
     }
