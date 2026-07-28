@@ -1,9 +1,9 @@
 #pragma once
 
 #include "CellPool.hpp"
-#include "CellFactory.hpp"
 #include "FoodPool.hpp"
-#include "FoodFactory.hpp"
+#include "RootPool.hpp"
+#include "EntityFactory.hpp"
 #include "Renderer.hpp"
 #include "Walls.hpp"
 #include "UI.hpp"
@@ -28,7 +28,11 @@ class Sim {
         void UpdateMovement(Pool& pool, int numEntities);
 
         template <typename Pool, typename Factory, typename SpawnCreator>
-        void UpdateSpawning(Pool& pool, Factory& factory, SpawnCreator spawnCreator, int numEntities);
+        void UpdateSpawning(Pool& pool, Factory& factory, SpawnCreator spawnCreator,
+                            int numEntities, bool respawnInactive = true);
+
+        template <typename Pool>
+        void UpdateEntityHealth(Pool& pool, int numEntities);
 
         void UpdateCollisions();
 
@@ -46,17 +50,23 @@ class Sim {
 
         void ManualTestWalls();
 
-        Renderer renderer;
-
+        // Entities
         int numCells;
         int numFood;
+        int numRoots; // env
+
         CellPool cellPool;
-        CellFactory cellFactory;
         FoodPool foodPool;
-        FoodFactory foodFactory;
-        Walls walls;
+        RootPool rootPool;
+
+        EntityFactory entityFactory;
+
+        // Entities max
         int maxCells;
         int maxFood;
-        UI gui;
+        int maxRoots; // env
 
+        Walls walls;
+        Renderer renderer;
+        UI gui;
 };

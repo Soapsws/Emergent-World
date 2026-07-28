@@ -57,14 +57,14 @@ add_executable(emergent_world
     src/main.cpp
     src/sim/Sim.cpp
     src/pools/CellPool.cpp
-    src/factories/CellFactory.cpp
+    src/factories/EntityFactory.cpp
     src/pools/FoodPool.cpp
-    src/factories/FoodFactory.cpp
     src/sim/Interactors.cpp
     src/rendering/Camera.cpp
     src/rendering/Renderer.cpp
     src/sim/Walls.cpp
     src/rendering/UI.cpp
+    src/pools/RootPool.cpp
 )
 
 target_include_directories(emergent_world PRIVATE

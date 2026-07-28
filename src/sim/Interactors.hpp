@@ -2,22 +2,10 @@
 
 #include "CellPool.hpp"
 #include "FoodPool.hpp"
-#include "Walls.hpp"
 
-struct Interactors {
 
-    Interactors();
-    ~Interactors();
+// only for unique interactions
 
-    // Circular Interactors
-
-    // (LEARNING) Pass CellPool by reference to prevent auto copying
-
-    void CellCell(CellPool& pool1, int index1, CellPool& pool2, int index2);
+namespace interactions {
     void CellFood(CellPool& pool1, int index1, FoodPool& pool2, int index2);
-    void FoodFood(FoodPool& pool1, int index1, FoodPool& pool2, int index2);
-
-    void CellWall(CellPool& pool1, int index1, Walls& pool2, int index2);
-    void FoodWall(FoodPool& pool1, int index1, Walls& pool2, int index2);
-
-};
+}

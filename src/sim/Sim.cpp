@@ -1,8 +1,11 @@
 #include <raylib.h>
+#include <optional>
+#include <type_traits>
 
 #include "Sim.hpp"
 #include "sim_constants.hpp"
 #include "Interactors.hpp"
+#include "Physics.hpp"
 #include <memory>
 
 
@@ -28,20 +31,24 @@ The member initialization list initializes class members before the constructor 
 
 
 
-Sim::Sim() : numCells(0), numFood(0), cellPool(cells::MAX_CELLS), cellFactory(cellPool), 
-                foodPool(food::MAX_NATURAL_FOOD), foodFactory(foodPool), renderer(), walls(),
-                maxCells(cells::MAX_CELLS), maxFood(food::MAX_NATURAL_FOOD),
+Sim::Sim() : numCells(0), numFood(0), numRoots(0), 
+                cellPool(cells::MAX_CELLS), foodPool(food::MAX_NATURAL_FOOD), rootPool(roots::MAX_ROOTS),
+                entityFactory(cellPool, foodPool, rootPool),
+                maxCells(cells::MAX_CELLS), maxFood(food::MAX_NATURAL_FOOD), maxRoots(roots::MAX_ROOTS),
+                walls(),
+                renderer(),
                 gui(true, renderer.pcam, maxCells, maxFood) {
+
+    // Initial spawn (maximum counts)
+
     for (int i = 0; i < maxCells; ++i) {
         cells::CellData data = cells::defaultSpawn();
-        int id = cellFactory.CreateCell(data);
+        int id = entityFactory.CreateCell(data);
         if (id >= 0) ++numCells;
     }
-
-    for (int i = 0; i < maxFood; ++i) {
-        food::FoodData data = food::defaultSpawn();
-        int id = foodFactory.CreateFood(data);
-        if (id >= 0) ++numFood;
+    for (int i = 0; i < maxRoots; ++i) {
+        int id = entityFactory.CreateRoot(roots::defaultSpawn());
+        if (id >= 0) ++numRoots;
     }
 
     InitWindow(settings::SCREEN_WIDTH, settings::SCREEN_HEIGHT, "Emergent World");
@@ -64,35 +71,33 @@ void Sim::Run() {
 }
 
 void Sim::Update() {
-    UpdateMovement(cellPool, maxCells);
     // C++ lambda: [what to capture] { body }
     // Below is a callable that takes no arguments and returns a new entity spawn data
             // Full form: [ capture_clause ] ( parameter_list ) specifiers -> return_type { body }
             // "-> return type" can be omitted unless it must be specified.
     // If you just pass the function you'd have to call it INSIDE the function and manually capture the function.
-    UpdateSpawning(cellPool, cellFactory, [] { return cells::defaultSpawn(); }, maxCells);
+    
+    UpdateSpawning(cellPool, entityFactory, [] { return cells::defaultSpawn(); }, maxCells);
+    UpdateSpawning(foodPool, entityFactory, [] { return food::defaultSpawn(); }, maxFood, false);
+    UpdateSpawning(rootPool, entityFactory, [] { return roots::defaultSpawn(); }, maxRoots);
 
+    // With more unique entity functionality, move this into helper function
+    for (int i = 0; i < maxRoots; ++i) {
+        rootPool.SpawnFood(i, entityFactory, GetFrameTime());
+    }
+
+    // Movement
+    UpdateMovement(cellPool, maxCells);
     UpdateMovement(foodPool, maxFood);
-    UpdateSpawning(foodPool, foodFactory, [] { return food::defaultSpawn(); }, maxFood);
 
     UpdateCollisions();
+
+    UpdateEntityHealth(cellPool, maxCells);
+    UpdateEntityHealth(foodPool, maxFood);
 
     // USER INPUT
 
     ProcessInput();
-}
-
-void Sim::ProcessInput() {
-    // (self-reminder: move to bottom)
-    if (IsKeyDown(KEY_UP)) renderer.pcam.pan(270); // inverted y axis
-    if (IsKeyDown(KEY_DOWN)) renderer.pcam.pan(90);
-    if (IsKeyDown(KEY_LEFT)) renderer.pcam.pan(180);
-    if (IsKeyDown(KEY_RIGHT)) renderer.pcam.pan(0);
-
-    if (IsKeyDown(KEY_I)) renderer.pcam.zoom(1.0 + renderer.pcam.zoomScale * GetFrameTime()); // so it's capped regardless of device specs
-    if (IsKeyDown(KEY_O)) renderer.pcam.zoom(1/(1.0 + renderer.pcam.zoomScale * GetFrameTime()));
-
-    // implement following later
 }
 
 template <typename Pool>
@@ -116,10 +121,11 @@ void Sim::UpdateMovement(Pool& pool, int numEntities) {
 }
 
 template <typename Pool, typename Factory, typename DefaultSpawn>
-void Sim::UpdateSpawning(Pool& pool, Factory& factory, DefaultSpawn defaultSpawn, int numEntities) {
+void Sim::UpdateSpawning(Pool& pool, Factory& factory, DefaultSpawn defaultSpawn,
+                         int numEntities, bool respawnInactive) {
     float t = GetFrameTime();
 
-    // to handle dynamic pool size adjustments
+    // handles dynamic pool size adjustments
     for (int i = numEntities; i < static_cast<int>(pool.active.size()); ++i) {
         pool.active[i] = false;
     }
@@ -130,10 +136,7 @@ void Sim::UpdateSpawning(Pool& pool, Factory& factory, DefaultSpawn defaultSpawn
             if (pool.spawning[i].lifetime <= 0) {
                 pool.active[i] = false;
             }
-            if (pool.health[i] <= 0) {
-                pool.active[i] = false;
-            }
-        } else {
+        } else if (respawnInactive) {
             pool.spawning[i].cooldown -= t;
             if (pool.spawning[i].cooldown <= 0) {
                 // auto deduces data from the RHS
@@ -144,50 +147,43 @@ void Sim::UpdateSpawning(Pool& pool, Factory& factory, DefaultSpawn defaultSpawn
     }
 }
 
+template <typename Pool>
+void Sim::UpdateEntityHealth(Pool& pool, int numEntities) {
+    for (int i = 0; i < numEntities; ++i) {
+        if (pool.active[i] && pool.health[i] <= 0.0f) {
+            pool.active[i] = false;
+        }
+    }
+}
+
+
 void Sim::UpdateCollisions() {
-    Interactors interactors;
-
-    // Generic Lambda
-
     auto cellCellInteractor = [&](auto& poolA, int indexA, auto& poolB, int indexB) {
-        interactors.CellCell(poolA, indexA, poolB, indexB);
+        physics::CircularBounce(poolA, indexA, poolB, indexB, 0.8f);
     };
 
     auto cellFoodInteractor = [&](auto& poolA,  int indexA, auto& poolB, int indexB) {
-        interactors.CellFood(poolA, indexA, poolB, indexB);
-    };
-
-    auto foodCellInteractor = [&](auto& poolA,  int indexA, auto& poolB, int indexB) {
-        ;
-        // all handled in cell-food (?)
+        interactions::CellFood(poolA, indexA, poolB, indexB);
     };
 
     auto foodFoodInteractor = [&](auto& poolA, int indexA, auto& poolB, int indexB) {
-        interactors.FoodFood(poolA, indexA, poolB, indexB);
+        physics::CircularBounce(poolA, indexA, poolB, indexB, 0.6f);
     };
 
     auto cellWallInteractor = [&](auto& poolA, int indexA, auto& poolB, int indexB) {
-        interactors.CellWall(poolA, indexA, poolB, indexB);
-    };
-
-    auto wallCellInteractor = [&](auto& poolA, int indexA, auto& poolB, int indexB) {
-        ;
+        physics::CircularImmovableRectangleBounce(poolA, indexA, poolB, indexB, 0.6f);
     };
 
     auto foodWallInteractor = [&](auto& poolA, int indexA, auto& poolB, int indexB) {
-        interactors.FoodWall(poolA, indexA, poolB, indexB);
+        physics::CircularImmovableRectangleBounce(poolA, indexA, poolB, indexB, 0.6f);
     };
 
-    auto wallFoodInteractor = [&](auto& poolA, int indexA, auto& poolB, int indexB) {
-        ;
-    };
+    CEntityCEntityCollision(cellPool, cellCellInteractor, cellPool, std::nullopt);
+    CEntityCEntityCollision(cellPool, cellFoodInteractor, foodPool, std::nullopt);
+    CEntityCEntityCollision(foodPool, foodFoodInteractor, foodPool, std::nullopt);
 
-    CEntityCEntityCollision(cellPool, cellCellInteractor, cellPool, cellCellInteractor);
-    CEntityCEntityCollision(cellPool, cellFoodInteractor, foodPool, foodCellInteractor);
-    CEntityCEntityCollision(foodPool, foodFoodInteractor, foodPool, foodFoodInteractor);
-
-    CEntityRObjectCollision(cellPool, cellWallInteractor, walls, wallCellInteractor);
-    CEntityRObjectCollision(foodPool, foodWallInteractor, walls, wallFoodInteractor);
+    CEntityRObjectCollision(cellPool, cellWallInteractor, walls, std::nullopt);
+    CEntityRObjectCollision(foodPool, foodWallInteractor, walls, std::nullopt);
 
 }
 
@@ -215,11 +211,9 @@ void Sim::CEntityCEntityCollision(CircularEntityPool1& pool1, Interact1 interact
             float rad2 = pool2.radius[j];
 
             if (CheckCollisionCircles(pos1, rad1, pos2, rad2)) {
-                if (samePool) interactor1(pool1, i, pool2, j);
-                else {
-                    interactor1(pool1, i, pool2, j);
-                    interactor2(pool2, j, pool1, i);
-                }
+                // constexpr specifies it can be evaluated at compile-time. regular "if" is runtime and causes a bad nullopt compilation
+                if constexpr (!std::is_same_v<Interact1, std::nullopt_t>) interactor1(pool1, i, pool2, j);
+                if constexpr (!std::is_same_v<Interact2, std::nullopt_t>) interactor2(pool2, j, pool1, i);
             }
         }
     }
@@ -235,12 +229,25 @@ void Sim::CEntityRObjectCollision(CircularEntityPool& pool1, Interact1 interacto
                     pool1.transform[i].position,
                     pool1.radius[i],
                     pool2.walls[j])) {
-                interactor1(pool1, i, pool2, j);
-                interactor2(pool2, j, pool1, i);
+                if constexpr (!std::is_same_v<Interact1, std::nullopt_t>) interactor1(pool1, i, pool2, j);
+                if constexpr (!std::is_same_v<Interact2, std::nullopt_t>) interactor2(pool2, j, pool1, i);
             }
         }
     }
 }
+
+void Sim::ProcessInput() {
+    if (IsKeyDown(KEY_UP)) renderer.pcam.pan(270); // inverted y axis
+    if (IsKeyDown(KEY_DOWN)) renderer.pcam.pan(90);
+    if (IsKeyDown(KEY_LEFT)) renderer.pcam.pan(180);
+    if (IsKeyDown(KEY_RIGHT)) renderer.pcam.pan(0);
+
+    if (IsKeyDown(KEY_I)) renderer.pcam.zoom(1.0 + renderer.pcam.zoomScale * GetFrameTime()); 
+    if (IsKeyDown(KEY_O)) renderer.pcam.zoom(1/(1.0 + renderer.pcam.zoomScale * GetFrameTime()));
+
+    // implement following later
+}
+
 
 
 void Sim::Render() {

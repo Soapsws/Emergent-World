@@ -133,7 +133,8 @@ namespace food {
         world::FoodTypes::Food_All,
         entity::TransformBounds{
             Vector2{ static_cast<float>(settings::WORLD_EDGE_SPAWN_OFFSET), static_cast<float>(settings::WORLD_EDGE_SPAWN_OFFSET) },
-            Vector2{ static_cast<float>(settings::WORLD_WIDTH - settings::WORLD_EDGE_SPAWN_OFFSET), static_cast<float>(settings::WORLD_HEIGHT - settings::WORLD_EDGE_SPAWN_OFFSET) },
+            Vector2{ static_cast<float>(settings::WORLD_WIDTH - settings::WORLD_EDGE_SPAWN_OFFSET), 
+                static_cast<float>(settings::WORLD_HEIGHT - settings::WORLD_EDGE_SPAWN_OFFSET) },
             Vector2{ -0.5f, -0.5f },
             Vector2{ 0.5f, 0.5f }
         },
@@ -174,6 +175,60 @@ namespace food {
             true
         };
     }
+}
+
+namespace roots {
+    const int MAX_ROOTS = 30;
+
+    struct RootSpawnConfig {
+        entity::TransformBounds transformBounds;
+        entity::SpawningBounds spawningBounds;
+        Vector2 radiusBounds;
+        Vector2 spawnRateBounds;
+    };
+
+    inline const RootSpawnConfig DEFAULT {
+        entity::TransformBounds{
+            Vector2{ static_cast<float>(settings::WORLD_EDGE_SPAWN_OFFSET), static_cast<float>(settings::WORLD_EDGE_SPAWN_OFFSET) },
+            Vector2{ static_cast<float>(settings::WORLD_WIDTH - settings::WORLD_EDGE_SPAWN_OFFSET), static_cast<float>(settings::WORLD_HEIGHT - settings::WORLD_EDGE_SPAWN_OFFSET) },
+            Vector2{ 0.0f, 0.0f },
+            Vector2{ 0.0f, 0.0f }
+        },
+        entity::SpawningBounds{
+            Vector2{ 100.0f, 200.0f },
+            Vector2{ 10.0f, 20.0f }
+        },
+        Vector2{ 12.0f, 24.0f },
+        Vector2{ 1.0f, 3.0f }
+    };
+
+    struct RootData {
+        entity::Transform transform;
+        entity::Spawning spawning;
+        float radius;
+        int spawnRate;
+        bool active;
+    };
+
+    inline RootData defaultSpawn() {
+        return {
+            entity::Transform{
+                Vector2{
+                    static_cast<float>(GetRandomValue(static_cast<int>(DEFAULT.transformBounds.positionMin.x), static_cast<int>(DEFAULT.transformBounds.positionMax.x))),
+                    static_cast<float>(GetRandomValue(static_cast<int>(DEFAULT.transformBounds.positionMin.y), static_cast<int>(DEFAULT.transformBounds.positionMax.y)))
+                },
+                Vector2{ 0.0f, 0.0f }
+            },
+            entity::Spawning{
+                static_cast<float>(GetRandomValue(static_cast<int>(DEFAULT.spawningBounds.lifetimeBounds.x), static_cast<int>(DEFAULT.spawningBounds.lifetimeBounds.y))),
+                static_cast<float>(GetRandomValue(static_cast<int>(DEFAULT.spawningBounds.cooldownBounds.x), static_cast<int>(DEFAULT.spawningBounds.cooldownBounds.y)))
+            },
+            math::GetRandomFloat(DEFAULT.radiusBounds.x, DEFAULT.radiusBounds.y),
+            GetRandomValue(static_cast<int>(DEFAULT.spawnRateBounds.x), static_cast<int>(DEFAULT.spawnRateBounds.y)),
+            true
+        };
+    }
+
 }
 
 namespace colors {
