@@ -4,8 +4,7 @@
 #include "Renderer.hpp"
 #include "sim_constants.hpp"
 
-#include "CellPool.hpp"
-#include "FoodPool.hpp"
+
 
 // another usage of initializer list
 Renderer::Renderer() : pcam(settings::SCREEN_WIDTH, settings::SCREEN_HEIGHT) { }
@@ -31,7 +30,15 @@ void Renderer::RenderCells(const CellPool& cellPool) {
 void Renderer::RenderFood(const FoodPool& foodPool) {
     for (int i = 0; i < static_cast<int>(foodPool.active.size()); ++i) {
         if (foodPool.active[i]) {
-            DrawCircleV(foodPool.transform[i].position, foodPool.radius[i], colors::GetNeonColor(colors::NEON_PINK));
+            DrawCircleV(foodPool.transform[i].position, foodPool.radius[i], colors::GetNeonColor(colors::NEON_CORAL));
+        }
+    }
+}
+
+void Renderer::RenderRoots(const RootPool& rootPool) {
+    for (int i = 0; i < static_cast<int>(rootPool.active.size()); ++i) {
+        if (rootPool.active[i]) {
+            DrawCircleV(rootPool.transform[i].position, rootPool.radius[i], colors::GetNeonColor(colors::NEON_PURPLE));
         }
     }
 }

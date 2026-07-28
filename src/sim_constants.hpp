@@ -198,8 +198,8 @@ namespace roots {
             Vector2{ 100.0f, 200.0f },
             Vector2{ 10.0f, 20.0f }
         },
-        Vector2{ 12.0f, 24.0f },
-        Vector2{ 1.0f, 3.0f }
+        Vector2{ 40.0f, 65.0f }, // radius
+        Vector2{ 1.0f, 3.0f } // spawning
     };
 
     struct RootData {

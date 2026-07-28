@@ -259,6 +259,7 @@ void Sim::Render() {
 
             renderer.RenderCells(cellPool);
             renderer.RenderFood(foodPool);
+            renderer.RenderRoots(rootPool);
     
             renderer.RenderWalls(); // NEW
 

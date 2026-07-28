@@ -5,6 +5,7 @@
 #include "Camera.hpp"
 #include "CellPool.hpp"
 #include "FoodPool.hpp"
+#include "RootPool.hpp"
 
 struct Renderer {
     PlayerCamera pcam;
@@ -20,6 +21,7 @@ struct Renderer {
 
     void RenderCells(const CellPool& cellPool);
     void RenderFood(const FoodPool& foodPool);
+    void RenderRoots(const RootPool& rootPool);
     void RenderWalls();
 
     void ConfigWallsTexture(const std::vector<Rectangle>& walls);
