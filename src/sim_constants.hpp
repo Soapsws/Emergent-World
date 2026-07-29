@@ -17,6 +17,8 @@ namespace world {
     const int ENTITY_SPECIES_COUNT = 1;
     const int FOOD_TYPE_COUNT = 1;
 
+    enum class EntityType { None, Cell, Food, Root };
+
     enum class EntitySpecies {
         Cell, // (a.k.a CELL1)
         // INERT_MATTER (see IOM)

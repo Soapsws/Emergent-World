@@ -43,6 +43,9 @@ class Sim {
         void CEntityRObjectCollision(CircularEntityPool& pool1, Interact1 interactor1, RectangularObjectPool& pool2, Interact2 interactor2);
 
         void ProcessInput();
+        
+        template <typename EntityPool>
+        int ProcessEntityClick(EntityPool& entityPool, Vector2 cursor);
 
         // ------------------------
             

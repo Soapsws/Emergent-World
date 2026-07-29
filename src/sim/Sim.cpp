@@ -270,7 +270,59 @@ void Sim::ProcessInput() {
     if (IsKeyDown(KEY_I)) renderer.pcam.zoom(1.0 + renderer.pcam.zoomScale * GetFrameTime()); 
     if (IsKeyDown(KEY_O)) renderer.pcam.zoom(1/(1.0 + renderer.pcam.zoomScale * GetFrameTime()));
 
-    // implement following later
+    Vector2 cursor = GetScreenToWorld2D(
+        GetMousePosition(),
+        renderer.pcam.data()
+    );
+    int selectedIndex = -1;
+    world::EntityType selectedType = world::EntityType::None;
+
+    /*
+    ... -> parameter/variadic pack: thus auto&... pool defines pool as a pack of references to auto type
+    nested lambda -> this is to manually exit the loop because breaks or continues don't work in Fold Expressions
+    (), ... -> tells it to execute that lambda immediately. ... is the Fold Expression operator.
+    
+    tracing the code: entityPools is passed into auto&... pool as a part of the outer lambda that is applied.
+                        the outer lambda invokes the inner lambda which iterates over each element of the first pool passed in.
+                        it handles manual checks and updates an indicator variable, selected, accessible outside of its scope.
+                        once the inner lambda is finished, the outer lambda continues to the next pool in the pack, and
+                        the indicator variable lets us handle "break once found" functionality.
+    
+    */
+
+    auto entityPools = std::tie(cellPool, foodPool, rootPool);
+    std::apply([&](auto&... pool) {
+        ([&]() {
+            if (selectedIndex != -1) return; 
+            int result = ProcessEntityClick(pool, cursor);
+            if (result != -1) {
+
+                selectedIndex = result;
+
+                // Figure out which type this specific 'pool' is using compile-time type checking
+                if constexpr (std::is_same_v<std::decay_t<decltype(pool)>, CellPool>) selectedType = world::EntityType::Cell;
+                else if constexpr (std::is_same_v<std::decay_t<decltype(pool)>, FoodPool>) selectedType = world::EntityType::Food;
+                else if constexpr (std::is_same_v<std::decay_t<decltype(pool)>, RootPool>) selectedType = world::EntityType::Root;
+                
+                return;
+            }
+        }(), ...); 
+    }, entityPools);
+}
+
+template <typename EntityPool>
+int Sim::ProcessEntityClick(EntityPool& entityPool, Vector2 cursor) {
+    for (size_t i = 0; i < entityPool.active.size(); ++i) {
+        if (entityPool.active[i] &&
+            CheckCollisionPointCircle(
+                cursor,
+                entityPool.transform[i].position,
+                entityPool.radius[i])) {
+            return static_cast<int>(i);
+        }
+    }
+
+    return -1;
 }
 
 
