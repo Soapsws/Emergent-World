@@ -2,12 +2,17 @@
 #include <optional>
 #include <type_traits>
 
+#include <memory>
+#include <cmath>
+
+#include <algorithm>
+#include <numeric>
+#include <random>
+
 #include "Sim.hpp"
 #include "sim_constants.hpp"
 #include "Interactors.hpp"
 #include "Physics.hpp"
-#include <memory>
-#include <cmath>
 
 
 /*
@@ -83,9 +88,11 @@ void Sim::Update() {
     UpdateSpawning(rootPool, entityFactory, [] { return roots::defaultSpawn(); }, maxRoots);
 
     // With more unique entity functionality, move this into helper function
-    for (int i = 0; i < maxRoots; ++i) {
-        rootPool.SpawnFood(i, entityFactory, GetFrameTime());
-    }
+    std::vector<int> rootOrder(maxRoots);
+    std::iota(rootOrder.begin(), rootOrder.end(), 0); // fills range with sequentially increasing values
+    static std::mt19937 rng(std::random_device{}()); // mersenne twister seeded using std::random_device (a rng)
+    std::shuffle(rootOrder.begin(), rootOrder.end(), rng); // to allow equal spawn distribution
+    for (int i : rootOrder) rootPool.SpawnFood(i, entityFactory, GetFrameTime());
 
     // Movement
     UpdateMovement(cellPool, maxCells);
