@@ -62,6 +62,7 @@ void RootPool::SpawnFood(int index, EntityFactory& entityFactory, float dt) {
             velocity,
             defaults.radius,
             defaults.health,
+            defaults.drag,
             defaults.spawning.lifetime,
             defaults.spawning.cooldown
         );

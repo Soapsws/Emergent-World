@@ -64,6 +64,7 @@ namespace cells {
         Vector2 radiusBounds;   
         Vector2 healthBounds;   
         Vector2 dpsBounds; // new
+        Vector2 dragBounds;
     };
 
     inline const CellSpawnConfig DEFAULT {
@@ -77,7 +78,8 @@ namespace cells {
         entity::SpawningBounds{ Vector2{ 50.0f, 100.0f }, Vector2{ 5.0f, 10.0f } }, // spawning <lifetime, cooldown>
         Vector2{ 6.0f, 16.0f },     // radius
         Vector2{ 50.0f, 100.0f }, // health
-        Vector2{ 100.0f, 200.0f }      // dps
+        Vector2{ 100.0f, 200.0f },     // dps
+        Vector2{ 0.0f, 0.1f }         // drag
     };
 
     struct CellData {
@@ -87,6 +89,7 @@ namespace cells {
         float radius;
         float health;
         float dps; // new
+        float drag;
         bool active;
     };
 
@@ -113,6 +116,7 @@ namespace cells {
         math::GetRandomFloat(DEFAULT.radiusBounds.x, DEFAULT.radiusBounds.y),
         math::GetRandomFloat(DEFAULT.healthBounds.x, DEFAULT.healthBounds.y),
         math::GetRandomFloat(DEFAULT.dpsBounds.x, DEFAULT.dpsBounds.y),
+        math::GetRandomFloat(DEFAULT.dragBounds.x, DEFAULT.dragBounds.y),
         true
     };
     }
@@ -127,6 +131,7 @@ namespace food {
         entity::SpawningBounds spawningBounds;
         Vector2 radiusBounds;
         Vector2 healthBounds;
+        Vector2 dragBounds;
     };
 
     inline const FoodSpawnConfig DEFAULT {
@@ -140,7 +145,8 @@ namespace food {
         },
         entity::SpawningBounds{ Vector2{ 50.0f, 100.0f }, Vector2{ 5.0f, 10.0f } },
         Vector2{ 5.0f, 10.0f }, // radius
-        Vector2{ 0.5f, 0.8f } // hp (TESTING VALUES)
+        Vector2{ 0.5f, 0.8f }, // hp (TESTING VALUES)
+        Vector2{ 0.02f, 0.06f } // drag
     };
 
     struct FoodData {
@@ -149,6 +155,7 @@ namespace food {
         entity::Spawning spawning;
         float radius;
         float health;
+        float drag;
         bool active;
         // add more e.g. hunger restored, energy gained, exp gained, etc.
     };
@@ -172,6 +179,7 @@ namespace food {
             },
             math::GetRandomFloat(DEFAULT.radiusBounds.x, DEFAULT.radiusBounds.y),
             math::GetRandomFloat(DEFAULT.healthBounds.x, DEFAULT.healthBounds.y),
+            math::GetRandomFloat(DEFAULT.dragBounds.x, DEFAULT.dragBounds.y),
             true
         };
     }

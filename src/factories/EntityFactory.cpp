@@ -6,13 +6,13 @@ EntityFactory::EntityFactory(CellPool& cellPool, FoodPool& foodPool, RootPool& r
 
 // Agentic Entities
 
-int EntityFactory::CreateCell(Vector2 pos, Vector2 vel, float rad, float hp, float dps,
+int EntityFactory::CreateCell(Vector2 pos, Vector2 vel, float rad, float hp, float dps, float drag,
                               float life, float cool) {
     return cellPool.CreateNext({
         world::EntitySpecies::Cell,
         entity::Transform{pos, vel},
         entity::Spawning{life, cool},
-        rad, hp, dps, true
+        rad, hp, dps, drag, true
     });
 }
 int EntityFactory::CreateCell(const cells::CellData& data) {
@@ -22,13 +22,13 @@ void EntityFactory::RespawnWithData(int index, const cells::CellData& data) {
     cellPool.Create(index, data);
 }
 
-int EntityFactory::CreateFood(Vector2 pos, Vector2 vel, float rad, float hp,
+int EntityFactory::CreateFood(Vector2 pos, Vector2 vel, float rad, float hp, float drag,
                               float life, float cool) {
     return foodPool.CreateNext({
         world::FoodTypes::Food_All,
         entity::Transform{pos, vel},
         entity::Spawning{life, cool},
-        rad, hp, true
+        rad, hp, drag, true
     });
 }
 int EntityFactory::CreateFood(const food::FoodData& data) {

@@ -5,6 +5,7 @@ FoodPool::FoodPool(int capacity) {
     spawning.resize(capacity);
     radius.resize(capacity);
     health.resize(capacity);
+    drag.resize(capacity);
     active.resize(capacity, false);
 }
 
@@ -22,10 +23,10 @@ int FoodPool::CreateNext(const food::FoodData& d) {
 }
 
 int FoodPool::Create(int index, const food::FoodData& d) {
-    return Create(index, d.transform.position, d.transform.velocity, d.radius, d.health, d.spawning.lifetime, d.spawning.cooldown);
+    return Create(index, d.transform.position, d.transform.velocity, d.radius, d.health, d.drag, d.spawning.lifetime, d.spawning.cooldown);
 }
 
-int FoodPool::Create(int index, Vector2 pos, Vector2 vel, float rad, float hp, float life, float cool) {
+int FoodPool::Create(int index, Vector2 pos, Vector2 vel, float rad, float hp, float dragValue, float life, float cool) {
     if (index < 0 || index >= static_cast<int>(active.size())) {
         return -1;
     }
@@ -34,6 +35,7 @@ int FoodPool::Create(int index, Vector2 pos, Vector2 vel, float rad, float hp, f
     spawning[index] = {life, cool};
     radius[index] = rad;
     health[index] = hp;
+    drag[index] = dragValue;
     active[index] = true;
     return index;
 }

@@ -7,6 +7,7 @@
 #include "Interactors.hpp"
 #include "Physics.hpp"
 #include <memory>
+#include <cmath>
 
 
 /*
@@ -102,8 +103,14 @@ void Sim::Update() {
 
 template <typename Pool>
 void Sim::UpdateMovement(Pool& pool, int numEntities) {
+    const float dt = GetFrameTime();
     for (int i = 0; i < numEntities; ++i) {
         if (pool.active[i]) {
+            // Drag is normalized: 0 = no drag. The exponent keeps the result
+            // consistent when frame rate changes (drag is tuned at 60 FPS).
+            const float retention = std::clamp(1.0f - pool.drag[i], 0.0f, 1.0f);
+            const float frameRetention = std::pow(retention, dt * 60.0f);
+            pool.transform[i].velocity = Vector2Scale(pool.transform[i].velocity, frameRetention);
             pool.transform[i].position.x += pool.transform[i].velocity.x;
             pool.transform[i].position.y += pool.transform[i].velocity.y;
             if (pool.transform[i].position.x < 0) {
@@ -158,6 +165,9 @@ void Sim::UpdateEntityHealth(Pool& pool, int numEntities) {
 
 
 void Sim::UpdateCollisions() {
+
+    // final argument: restitution (bounciness of collision, if applicable)
+
     auto cellCellInteractor = [&](auto& poolA, int indexA, auto& poolB, int indexB) {
         physics::CircularBounce(poolA, indexA, poolB, indexB, 0.8f);
     };
@@ -171,11 +181,19 @@ void Sim::UpdateCollisions() {
     };
 
     auto cellWallInteractor = [&](auto& poolA, int indexA, auto& poolB, int indexB) {
-        physics::CircularImmovableRectangleBounce(poolA, indexA, poolB, indexB, 0.6f);
+        physics::CircularImmovableRectangularBounce(poolA, indexA, poolB, indexB, 0.6f);
     };
 
     auto foodWallInteractor = [&](auto& poolA, int indexA, auto& poolB, int indexB) {
-        physics::CircularImmovableRectangleBounce(poolA, indexA, poolB, indexB, 0.6f);
+        physics::CircularImmovableRectangularBounce(poolA, indexA, poolB, indexB, 0.6f);
+    };
+
+    auto cellRootInteractor = [&](auto& poolA, int indexA, auto& poolB, int indexB) {
+        physics::CircularImmovableCircularBounce(poolA, indexA, poolB, indexB, 0.6f);
+    };
+
+    auto foodRootInteractor = [&](auto& poolA, int indexA, auto& poolB, int indexB) {
+        physics::CircularImmovableCircularBounce(poolA, indexA, poolB, indexB, 0.99f);
     };
 
     CEntityCEntityCollision(cellPool, cellCellInteractor, cellPool, std::nullopt);

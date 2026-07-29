@@ -7,6 +7,7 @@ CellPool::CellPool(int capacity) {
     radius.resize(capacity);
     health.resize(capacity);
     dps.resize(capacity);
+    drag.resize(capacity);
     active.resize(capacity, false);
 }
 
@@ -22,10 +23,10 @@ int CellPool::CreateNext(const cells::CellData& d) {
 }
 
 int CellPool::Create(int index, const cells::CellData& d) {
-    return Create(index, d.transform.position, d.transform.velocity, d.radius, d.health, d.dps, d.spawning.lifetime, d.spawning.cooldown);
+    return Create(index, d.transform.position, d.transform.velocity, d.radius, d.health, d.dps, d.drag, d.spawning.lifetime, d.spawning.cooldown);
 }
 
-int CellPool::Create(int index, Vector2 pos, Vector2 vel, float rad, float hp, float dmg, float life, float cool) {
+int CellPool::Create(int index, Vector2 pos, Vector2 vel, float rad, float hp, float dmg, float dragValue, float life, float cool) {
     if (index < 0 || index >= static_cast<int>(active.size())) { return -1; }
     // using separate parameter names; otherwise would have to use this-> to disambiguate
     transform[index] = {pos, vel};
@@ -33,6 +34,7 @@ int CellPool::Create(int index, Vector2 pos, Vector2 vel, float rad, float hp, f
     radius[index] = rad;
     health[index] = hp;
     dps[index] = dmg;
+    drag[index] = dragValue;
     active[index] = true;
     return index;
 }

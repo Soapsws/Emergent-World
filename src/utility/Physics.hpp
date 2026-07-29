@@ -51,8 +51,45 @@ void CircularBounce(CircularPool1& pool1, int index1, CircularPool2& pool2,
     }
 }
 
+template <typename CircularPool1, typename CircularPool2>
+void CircularImmovableCircularBounce(CircularPool1& pool1, int index1,
+                                        CircularPool2& pool2, int index2, float restitution) {
+    const float radiusSum = pool1.radius[index1] + pool2.radius[index2];
+    const float distance = Vector2Distance(
+        pool1.transform[index1].position,
+        pool2.transform[index2].position
+    );
+    const float overlap = radiusSum - distance;
+    Vector2 normal = Vector2Normalize(Vector2Subtract(
+        pool2.transform[index2].position,
+        pool1.transform[index1].position
+    ));
+
+    const float push = overlap * 0.5f;
+    pool1.transform[index1].position = Vector2Subtract(
+        pool1.transform[index1].position,
+        Vector2Scale(normal, push)
+    );
+    
+    const Vector2 relativeVelocity = Vector2Subtract(
+        pool2.transform[index2].velocity,
+        pool1.transform[index1].velocity
+    );
+    const float velocityAlongNormal = Vector2DotProduct(relativeVelocity, normal);
+
+    if (velocityAlongNormal < 0.0f) {
+        const float impulseMagnitude =
+            -(1.0f + restitution) * velocityAlongNormal * 0.5f;
+        const Vector2 impulse = Vector2Scale(normal, impulseMagnitude);
+
+        pool1.transform[index1].velocity = Vector2Subtract(
+            pool1.transform[index1].velocity, impulse
+        );
+    }                                                           
+}
+
 template <typename CircularPool, typename RectangularPool>
-void CircularImmovableRectangleBounce(CircularPool& pool1, int index1,
+void CircularImmovableRectangularBounce(CircularPool& pool1, int index1,
                                       RectangularPool& pool2, int index2,
                                       float restitution) {
     Vector2& center = pool1.transform[index1].position;
