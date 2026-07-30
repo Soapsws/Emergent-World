@@ -262,21 +262,28 @@ void Sim::CEntityRObjectCollision(CircularEntityPool& pool1, Interact1 interacto
 }
 
 void Sim::ProcessInput() {
-    if (IsKeyDown(KEY_UP)) renderer.pcam.pan(270); // inverted y axis
-    if (IsKeyDown(KEY_DOWN)) renderer.pcam.pan(90);
-    if (IsKeyDown(KEY_LEFT)) renderer.pcam.pan(180);
-    if (IsKeyDown(KEY_RIGHT)) renderer.pcam.pan(0);
+    if (IsKeyDown(KEY_UP)) renderer.pcam.Pan(270); // inverted y axis
+    if (IsKeyDown(KEY_DOWN)) renderer.pcam.Pan(90);
+    if (IsKeyDown(KEY_LEFT)) renderer.pcam.Pan(180);
+    if (IsKeyDown(KEY_RIGHT)) renderer.pcam.Pan(0);
 
-    if (IsKeyDown(KEY_I)) renderer.pcam.zoom(1.0 + renderer.pcam.zoomScale * GetFrameTime()); 
-    if (IsKeyDown(KEY_O)) renderer.pcam.zoom(1/(1.0 + renderer.pcam.zoomScale * GetFrameTime()));
+    if (IsKeyDown(KEY_I)) renderer.pcam.Zoom(1.0 + renderer.pcam.zoomScale * GetFrameTime()); 
+    if (IsKeyDown(KEY_O)) renderer.pcam.Zoom(1/(1.0 + renderer.pcam.zoomScale * GetFrameTime()));
 
     Vector2 cursor = GetScreenToWorld2D(
         GetMousePosition(),
         renderer.pcam.data()
     );
-    int selectedIndex = -1;
-    world::EntityType selectedType = world::EntityType::None;
 
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        ProcessEntitySelection(cursor);
+    }
+
+    // Selection changes only on click; following must be updated every frame.
+    ProcessSelectedEntity();
+}
+
+void Sim::ProcessEntitySelection(Vector2 cursor) {
     /*
     ... -> parameter/variadic pack: thus auto&... pool defines pool as a pack of references to auto type
     nested lambda -> this is to manually exit the loop because breaks or continues don't work in Fold Expressions
@@ -290,14 +297,22 @@ void Sim::ProcessInput() {
     
     */
 
+    // A click replaces the previous selection. Clicking empty space clears it.
+    selectedPool.reset();
+    selectedIndex = -1;
+    selectedType = world::EntityType::None;
+
+    bool found = false;
     auto entityPools = std::tie(cellPool, foodPool, rootPool);
     std::apply([&](auto&... pool) {
         ([&]() {
-            if (selectedIndex != -1) return; 
+            if (found) return;
             int result = ProcessEntityClick(pool, cursor);
             if (result != -1) {
 
                 selectedIndex = result;
+                selectedPool = std::ref(pool);
+                found = true;
 
                 // Figure out which type this specific 'pool' is using compile-time type checking
                 if constexpr (std::is_same_v<std::decay_t<decltype(pool)>, CellPool>) selectedType = world::EntityType::Cell;
@@ -308,6 +323,31 @@ void Sim::ProcessInput() {
             }
         }(), ...); 
     }, entityPools);
+}
+
+void Sim::ProcessSelectedEntity() {
+    // std::visit executes a function based on the current type within an std::variant
+    if (selectedPool.has_value()) {
+        std::visit([&](auto& wrappedPool) {
+            auto& pool = wrappedPool.get();
+
+            renderer.pcam.ToggleFollowing(true);
+
+            // handles edge case & smoothly exits camera follow if entity forcibly despawned
+            if (selectedIndex < 0 ||
+                selectedIndex >= static_cast<int>(pool.active.size()) ||
+                !pool.active[selectedIndex]) {
+                selectedPool.reset();
+                selectedIndex = -1;
+                selectedType = world::EntityType::None;
+                return;
+            }
+
+            renderer.pcam.UpdateCamera(pool.transform[selectedIndex].position);
+        }, *selectedPool);
+    } else {
+        renderer.pcam.ToggleFollowing(false);
+    }
 }
 
 template <typename EntityPool>
@@ -328,19 +368,21 @@ int Sim::ProcessEntityClick(EntityPool& entityPool, Vector2 cursor) {
 
 
 void Sim::Render() {
-    BeginDrawing(); // DRAWING
 
-        BeginMode2D(renderer.pcam.data()); // CAMERA2D
+    // Drawing
 
+    BeginDrawing(); 
+
+        BeginMode2D(renderer.pcam.data()); 
             ClearBackground(BLACK);
 
             renderer.RenderCells(cellPool);
             renderer.RenderFood(foodPool);
             renderer.RenderRoots(rootPool);
     
-            renderer.RenderWalls(); // NEW
+            renderer.RenderWalls(); 
 
-        EndMode2D();  // CAMERA2D
+        EndMode2D();  
 
         // ~~~~~~~~ UI outside of Camera2D block so it tracks with the frame, not the world
 
@@ -350,7 +392,7 @@ void Sim::Render() {
 
         gui.End();
 
-    EndDrawing(); // DRAWING
+    EndDrawing(); 
 }
 
 // TEMPORARY MANUAL TEST: remove this function and its constructor call when real walls are ready.

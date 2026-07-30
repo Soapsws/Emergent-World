@@ -29,7 +29,7 @@ void UI::Draw() {
         if (ImGui::CollapsingHeader("User settings", ImGuiTreeNodeFlags_DefaultOpen)) {
             float panSpeed = camera.panSpeed();
             if (ImGui::SliderFloat("Camera speed", &panSpeed, 0.5f, 8.0f)) {
-                camera.setPanSpeed(panSpeed);
+                camera.SetPanSpeed(panSpeed);
             }
 
             ImGui::SliderFloat("Zoom speed", &camera.zoomScale, 0.2f, 5.0f);

@@ -15,21 +15,27 @@ PlayerCamera::PlayerCamera(float screenWidth, float screenHeight) {
 
 PlayerCamera::~PlayerCamera() = default;
 
-void PlayerCamera::zoom(float factor) {
+void PlayerCamera::UpdateCamera(std::optional<Vector2> target) {
+    if (following && target.has_value()) {
+        Follow(target.value());
+    }
+}
+
+void PlayerCamera::Zoom(float factor) {
     cam2d.zoom = std::clamp(cam2d.zoom * factor, zoomBounds.x, zoomBounds.y);
 }
 
-void PlayerCamera::follow(const Vector2& target) {
+void PlayerCamera::Follow(const Vector2& target) {
     cam2d.target = target;
 }
 
 
-void PlayerCamera::toggleFollowing() {
-    following = !following;
+void PlayerCamera::ToggleFollowing(bool val) {
+    following = val;
 }
 
 // Raylib uses degrees; C++ uses radians
-void PlayerCamera::pan(float angle) {
+void PlayerCamera::Pan(float angle) {
     cam2d.target = Vector2Add(cam2d.target, Vector2{speed * cosf(angle * DEG2RAD), speed * sinf(angle * DEG2RAD)});
 }
 
@@ -37,11 +43,11 @@ float PlayerCamera::panSpeed() const {
     return speed;
 }
 
-void PlayerCamera::setPanSpeed(float value) {
+void PlayerCamera::SetPanSpeed(float value) {
     speed = std::clamp(value, speedBounds.x, speedBounds.y);
 }
 
-void PlayerCamera::resetTransform() {
+void PlayerCamera::ResetTransform() {
     cam2d.target = Vector2{settings::WORLD_WIDTH * 0.5f, settings::WORLD_HEIGHT * 0.5f};
     cam2d.zoom = 1.0f;
     following = false;

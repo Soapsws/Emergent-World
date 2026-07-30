@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <raylib.h>
 
 class PlayerCamera {
@@ -19,18 +20,20 @@ class PlayerCamera {
         ~PlayerCamera();
 
         float zoomScale;
+        
+        void UpdateCamera(std::optional<Vector2> target = std::nullopt);
 
-        void zoom(float factor);
-        void follow(const Vector2& target);
+        void Zoom(float factor);
+        void Follow(const Vector2& target);
 
-        void toggleFollowing();
+        void ToggleFollowing(bool val);
 
-        void pan(float angle);
+        void Pan(float angle);
 
         float panSpeed() const;
-        void setPanSpeed(float value);
+        void SetPanSpeed(float value);
 
-        void resetTransform();
+        void ResetTransform();
 
         Camera2D& data();
 };

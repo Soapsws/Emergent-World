@@ -1,5 +1,9 @@
 #pragma once
 
+#include <functional>
+#include <optional>
+#include <variant>
+
 #include "CellPool.hpp"
 #include "FoodPool.hpp"
 #include "RootPool.hpp"
@@ -19,6 +23,15 @@ class Sim {
         void Run();
 
     private:
+
+        // std::variant is type-safe and means SelectedPool can hold a reference to exactly one of these.
+        // reference_wrapper means the pool isn't copied; it's just a reference.
+        using SelectedPool = std::variant<
+            std::reference_wrapper<CellPool>,
+            std::reference_wrapper<FoodPool>,
+            std::reference_wrapper<RootPool>
+        >;
+
         void Update();
             // Update -> sub-functions:
 
@@ -43,6 +56,10 @@ class Sim {
         void CEntityRObjectCollision(CircularEntityPool& pool1, Interact1 interactor1, RectangularObjectPool& pool2, Interact2 interactor2);
 
         void ProcessInput();
+
+        void ProcessEntitySelection(Vector2 cursor);
+
+        void ProcessSelectedEntity();
         
         template <typename EntityPool>
         int ProcessEntityClick(EntityPool& entityPool, Vector2 cursor);
@@ -72,4 +89,8 @@ class Sim {
         Walls walls;
         Renderer renderer;
         UI gui;
+
+        std::optional<SelectedPool> selectedPool;
+        int selectedIndex {-1};
+        world::EntityType selectedType {world::EntityType::None};
 };
