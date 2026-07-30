@@ -74,6 +74,7 @@ target_include_directories(emergent_world PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sim
     ${CMAKE_CURRENT_SOURCE_DIR}/src/rendering
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utility
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ai
 )
 
 # Note how dependencies are propagated from above; see target_link_libraries for rlImGui
