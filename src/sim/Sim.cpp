@@ -37,25 +37,14 @@ The member initialization list initializes class members before the constructor 
 
 
 
-Sim::Sim() : numCells(0), numFood(0), numRoots(0), 
-                cellPool(cells::MAX_CELLS), foodPool(food::MAX_NATURAL_FOOD), rootPool(roots::MAX_ROOTS),
+Sim::Sim() : cellPool(cells::MAX_CELLS), foodPool(food::MAX_NATURAL_FOOD), rootPool(roots::MAX_ROOTS),
                 entityFactory(cellPool, foodPool, rootPool),
                 maxCells(cells::MAX_CELLS), maxFood(food::MAX_NATURAL_FOOD), maxRoots(roots::MAX_ROOTS),
+                registry(),
                 walls(),
                 renderer(),
                 gui(true, renderer.pcam, maxCells, maxFood) {
 
-    // Initial spawn (maximum counts)
-
-    for (int i = 0; i < maxCells; ++i) {
-        cells::CellData data = cells::defaultSpawn();
-        int id = entityFactory.CreateCell(data);
-        if (id >= 0) ++numCells;
-    }
-    for (int i = 0; i < maxRoots; ++i) {
-        int id = entityFactory.CreateRoot(roots::defaultSpawn());
-        if (id >= 0) ++numRoots;
-    }
 
     InitWindow(settings::SCREEN_WIDTH, settings::SCREEN_HEIGHT, "Emergent World");
     SetTargetFPS(60);
@@ -76,6 +65,23 @@ void Sim::Run() {
     }
 }
 
+void Sim::InitSpawn() {
+    for (int i = 0; i < maxCells; ++i) {
+        cells::CellData data = cells::defaultSpawn();
+        int id = entityFactory.CreateCell(data);
+        if (id >= 0) {
+            registry.AddEntity(world::EntityType::Cell, id);
+        }
+    }
+    for (int i = 0; i < maxRoots; ++i) {
+        int id = entityFactory.CreateRoot(roots::defaultSpawn());
+        if (id >= 0) {
+            registry.AddEntity(world::EntityType::Root, id);
+        }
+    }
+}
+
+
 void Sim::Update() {
     // C++ lambda: [what to capture] { body }
     // Below is a callable that takes no arguments and returns a new entity spawn data
@@ -92,7 +98,7 @@ void Sim::Update() {
     std::iota(rootOrder.begin(), rootOrder.end(), 0); // fills range with sequentially increasing values
     static std::mt19937 rng(std::random_device{}()); // mersenne twister seeded using std::random_device (a rng)
     std::shuffle(rootOrder.begin(), rootOrder.end(), rng); // to allow equal spawn distribution
-    for (int i : rootOrder) rootPool.SpawnFood(i, entityFactory, GetFrameTime());
+    for (int i : rootOrder) rootPool.SpawnFood(i, entityFactory, registry, GetFrameTime());
 
     // Movement
     UpdateMovement(cellPool, maxCells);
@@ -142,6 +148,7 @@ void Sim::UpdateSpawning(Pool& pool, Factory& factory, DefaultSpawn defaultSpawn
     // handles dynamic pool size adjustments
     for (int i = numEntities; i < static_cast<int>(pool.active.size()); ++i) {
         pool.active[i] = false;
+        registry.Deactivate(registry.Find(Pool::entityType, i));
     }
 
     for (int i = 0; i < numEntities; ++i) {
@@ -149,6 +156,7 @@ void Sim::UpdateSpawning(Pool& pool, Factory& factory, DefaultSpawn defaultSpawn
             pool.spawning[i].lifetime -= t;
             if (pool.spawning[i].lifetime <= 0) {
                 pool.active[i] = false;
+                registry.Deactivate(registry.Find(Pool::entityType, i));
             }
         } else if (respawnInactive) {
             pool.spawning[i].cooldown -= t;
@@ -156,6 +164,7 @@ void Sim::UpdateSpawning(Pool& pool, Factory& factory, DefaultSpawn defaultSpawn
                 // auto deduces data from the RHS
                 auto data = defaultSpawn();
                 factory.RespawnWithData(i, data);
+                registry.Activate(registry.Find(Pool::entityType, i));
             }
         }
     }
@@ -166,6 +175,7 @@ void Sim::UpdateEntityHealth(Pool& pool, int numEntities) {
     for (int i = 0; i < numEntities; ++i) {
         if (pool.active[i] && pool.health[i] <= 0.0f) {
             pool.active[i] = false;
+            registry.Deactivate(registry.Find(Pool::entityType, i));
         }
     }
 }

@@ -1,5 +1,6 @@
 #include "RootPool.hpp"
 #include "EntityFactory.hpp"
+#include "IDRegistry.hpp"
 #include <cmath>
 #include <raymath.h>
 
@@ -41,7 +42,7 @@ int RootPool::Create(int index, Vector2 pos, Vector2 vel, float rad, int rate,
     return index;
 }
 
-void RootPool::SpawnFood(int index, EntityFactory& entityFactory, float dt) {
+void RootPool::SpawnFood(int index, EntityFactory& entityFactory, IDRegistry& registry, float dt) {
     if (index < 0 || index >= static_cast<int>(active.size()) || !active[index]) return;
 
     spawnCooldown[index] -= dt;
@@ -69,6 +70,7 @@ void RootPool::SpawnFood(int index, EntityFactory& entityFactory, float dt) {
 
         if (foodIndex >= 0) {
             spawnCooldown[index] = static_cast<float>(spawnRate[index]);
+            registry.AddEntity(FoodPool::entityType, foodIndex);
         }
     }
 }

@@ -8,6 +8,7 @@
 #include "FoodPool.hpp"
 #include "RootPool.hpp"
 #include "EntityFactory.hpp"
+#include "IDRegistry.hpp"
 #include "Renderer.hpp"
 #include "Walls.hpp"
 #include "UI.hpp"
@@ -31,6 +32,8 @@ class Sim {
             std::reference_wrapper<FoodPool>,
             std::reference_wrapper<RootPool>
         >;
+
+        void InitSpawn();
 
         void Update();
             // Update -> sub-functions:
@@ -71,10 +74,6 @@ class Sim {
         void ManualTestWalls();
 
         // Entities
-        int numCells;
-        int numFood;
-        int numRoots; // env
-
         CellPool cellPool;
         FoodPool foodPool;
         RootPool rootPool;
@@ -86,6 +85,10 @@ class Sim {
         int maxFood;
         int maxRoots; // env
 
+        // Registry
+        IDRegistry registry;
+
+        // Environment & UI
         Walls walls;
         Renderer renderer;
         UI gui;

@@ -4,6 +4,9 @@
 #include "sim_constants.hpp"
 
 struct FoodPool {
+
+    static constexpr world::EntityType entityType = world::EntityType::Food;
+
     std::vector<entity::Transform> transform;
     std::vector<entity::Spawning> spawning;
     std::vector<float> radius;

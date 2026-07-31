@@ -3,12 +3,16 @@
 #include <raylib.h>
 #include <vector>
 #include "sim_constants.hpp"
+#include "IDRegistry.hpp"
 
 class EntityFactory;
 
 // food source (see roots/rhizosphere)
 
 struct RootPool {
+
+    static constexpr world::EntityType entityType = world::EntityType::Root;
+
     std::vector<entity::Transform> transform;
     std::vector<entity::Spawning> spawning;
     std::vector<float> radius;
@@ -23,5 +27,5 @@ struct RootPool {
     int Create(int index, const roots::RootData& d);
     int CreateNext(const roots::RootData& d);
 
-    void SpawnFood(int index, EntityFactory& entityFactory, float dt);
+    void SpawnFood(int index, EntityFactory& entityFactory, IDRegistry& registry, float dt);
 };

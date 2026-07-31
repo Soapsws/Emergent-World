@@ -5,6 +5,8 @@
 
 struct CellPool {
 
+    static constexpr world::EntityType entityType = world::EntityType::Cell;
+
     // Cell properties (Structure of Arrays)
     std::vector<entity::Transform> transform;
     std::vector<entity::Spawning> spawning;
