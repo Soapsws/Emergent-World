@@ -8,8 +8,8 @@ namespace settings {
     const int SCREEN_WIDTH = 1500;
     const int SCREEN_HEIGHT = 1000;
 
-    const int WORLD_WIDTH = 4500;
-    const int WORLD_HEIGHT = 3000;
+    const int WORLD_WIDTH = 9000;
+    const int WORLD_HEIGHT = 6000;
     const int WORLD_EDGE_SPAWN_OFFSET = 100;
 }
 
