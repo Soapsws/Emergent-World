@@ -148,7 +148,8 @@ void Sim::UpdateSpawning(Pool& pool, Factory& factory, DefaultSpawn defaultSpawn
     // handles dynamic pool size adjustments
     for (int i = numEntities; i < static_cast<int>(pool.active.size()); ++i) {
         pool.active[i] = false;
-        registry.Deactivate(registry.Find(Pool::entityType, i));
+        const auto id = registry.Find(Pool::entityType, i);
+        if (id != IDRegistry::InvalidID) registry.Deactivate(id);
     }
 
     for (int i = 0; i < numEntities; ++i) {
@@ -156,7 +157,8 @@ void Sim::UpdateSpawning(Pool& pool, Factory& factory, DefaultSpawn defaultSpawn
             pool.spawning[i].lifetime -= t;
             if (pool.spawning[i].lifetime <= 0) {
                 pool.active[i] = false;
-                registry.Deactivate(registry.Find(Pool::entityType, i));
+                const auto id = registry.Find(Pool::entityType, i);
+                if (id != IDRegistry::InvalidID) registry.Deactivate(id);
             }
         } else if (respawnInactive) {
             pool.spawning[i].cooldown -= t;
@@ -164,7 +166,8 @@ void Sim::UpdateSpawning(Pool& pool, Factory& factory, DefaultSpawn defaultSpawn
                 // auto deduces data from the RHS
                 auto data = defaultSpawn();
                 factory.RespawnWithData(i, data);
-                registry.Activate(registry.Find(Pool::entityType, i));
+                const auto id = registry.Find(Pool::entityType, i);
+                if (id != IDRegistry::InvalidID) registry.Activate(id);
             }
         }
     }
@@ -175,7 +178,8 @@ void Sim::UpdateEntityHealth(Pool& pool, int numEntities) {
     for (int i = 0; i < numEntities; ++i) {
         if (pool.active[i] && pool.health[i] <= 0.0f) {
             pool.active[i] = false;
-            registry.Deactivate(registry.Find(Pool::entityType, i));
+            const auto id = registry.Find(Pool::entityType, i);
+            if (id != IDRegistry::InvalidID) registry.Deactivate(id);
         }
     }
 }

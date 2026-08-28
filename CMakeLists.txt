@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.24)
 
 project(EmergentWorld LANGUAGES CXX)
 
+find_package(Eigen3 REQUIRED NO_MODULE)
+
 include(FetchContent)
 
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -55,6 +57,7 @@ target_link_libraries(rlImGui PUBLIC
 
 add_executable(emergent_world
     src/main.cpp
+    src/ai/Brain.cpp
     src/sim/Sim.cpp
     src/pools/CellPool.cpp
     src/factories/EntityFactory.cpp
@@ -80,6 +83,7 @@ target_include_directories(emergent_world PRIVATE
 # Note how dependencies are propagated from above; see target_link_libraries for rlImGui
 target_link_libraries(emergent_world PRIVATE
     rlImGui
+    Eigen3::Eigen
 )
 
 target_compile_features(emergent_world PRIVATE cxx_std_20)
