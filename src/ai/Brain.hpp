@@ -55,13 +55,10 @@ class Brain {
 
         // weights will be fixed after headless training in python environment, and loaded into the C++ environment for inference
 
-        std::vector<std::vector<float>> weights_hidden;
-        std::vector<float> biases_hidden;
+        Eigen::MatrixXf weights_input_hidden;
+        Eigen::VectorXf biases_hidden;
 
-        std::vector<std::vector<float>> weights_output;
-        std::vector<float> biases_output;
-
-
-
+        Eigen::MatrixXf weights_output;
+        Eigen::VectorXf biases_output;
 
 };
