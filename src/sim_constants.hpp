@@ -3,6 +3,8 @@
 #include <utility>
 
 #include "Math.hpp"
+#include "EntityTypes.hpp"
+#include "State.hpp"
 
 namespace settings {
     const int SCREEN_WIDTH = 1500;
@@ -17,7 +19,7 @@ namespace world {
     const int ENTITY_SPECIES_COUNT = 1;
     const int FOOD_TYPE_COUNT = 1;
 
-    enum class EntityType { None, Cell, Food, Root };
+    enum class EntityType { None, Cell, Food, Root, Predator };
 
     enum class EntitySpecies {
         Cell, // (a.k.a CELL1)
@@ -33,11 +35,6 @@ namespace world {
 }
 
 namespace entity {
-    struct Transform {
-        Vector2 position;
-        Vector2 velocity;
-    };
-
     struct TransformBounds {
         Vector2 positionMin;
         Vector2 positionMax;
@@ -67,6 +64,8 @@ namespace cells {
         Vector2 healthBounds;   
         Vector2 dpsBounds; // new
         Vector2 dragBounds;
+        Vector2 facingAngleBounds;
+        Vector2 visionRadiusBounds;
     };
 
     inline const CellSpawnConfig DEFAULT {
@@ -81,32 +80,44 @@ namespace cells {
         Vector2{ 6.0f, 16.0f },     // radius
         Vector2{ 50.0f, 100.0f }, // health
         Vector2{ 100.0f, 200.0f },     // dps
-        Vector2{ 0.0f, 0.1f }         // drag
+        Vector2{ 0.0f, 0.1f },        // drag
+        Vector2{ 0.0f, 2.0f * PI },   // facing angle, radians
+        Vector2{ 100.0f, 250.0f }     // vision radius
     };
 
     struct CellData {
         world::EntitySpecies species; 
-        entity::Transform transform; 
+        State state;
         entity::Spawning spawning; 
         float radius;
-        float health;
         float dps; // new
         float drag;
+        float visionRadius;
         bool active;
     };
 
     inline cells::CellData defaultSpawn() {
+    const float facingAngle = math::GetRandomFloat(DEFAULT.facingAngleBounds.x, DEFAULT.facingAngleBounds.y);
     return {
         world::EntitySpecies::Cell,
 
-        entity::Transform{
-            Vector2{
+        State{
+            entity::Transform{
+                Vector2{
                 static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.transformBounds.positionMin.x), static_cast<int>(cells::DEFAULT.transformBounds.positionMax.x))),
                 static_cast<float>(GetRandomValue(static_cast<int>(cells::DEFAULT.transformBounds.positionMin.y), static_cast<int>(cells::DEFAULT.transformBounds.positionMax.y)))
-            },
-            Vector2{
+                },
+                Vector2{
                 math::GetRandomFloat(cells::DEFAULT.transformBounds.velocityMin.x, cells::DEFAULT.transformBounds.velocityMax.x),
                 math::GetRandomFloat(cells::DEFAULT.transformBounds.velocityMin.y, cells::DEFAULT.transformBounds.velocityMax.y)
+                }
+            },
+            math::GetRandomFloat(DEFAULT.healthBounds.x, DEFAULT.healthBounds.y),
+            0.0f,
+            0.0f,
+            Vector2{
+                cosf(facingAngle),
+                sinf(facingAngle)
             }
         },
 
@@ -116,9 +127,9 @@ namespace cells {
         },
 
         math::GetRandomFloat(DEFAULT.radiusBounds.x, DEFAULT.radiusBounds.y),
-        math::GetRandomFloat(DEFAULT.healthBounds.x, DEFAULT.healthBounds.y),
         math::GetRandomFloat(DEFAULT.dpsBounds.x, DEFAULT.dpsBounds.y),
         math::GetRandomFloat(DEFAULT.dragBounds.x, DEFAULT.dragBounds.y),
+        math::GetRandomFloat(DEFAULT.visionRadiusBounds.x, DEFAULT.visionRadiusBounds.y),
         true
     };
     }

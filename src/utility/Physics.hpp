@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <raymath.h>
+#include "State.hpp"
 
 // generic collisions
 
@@ -12,28 +13,28 @@ void CircularBounce(CircularPool1& pool1, int index1, CircularPool2& pool2,
                     int index2, float restitution) {
     const float radiusSum = pool1.radius[index1] + pool2.radius[index2];
     const float distance = Vector2Distance(
-        pool1.transform[index1].position,
-        pool2.transform[index2].position
+        TransformAt(pool1, index1).position,
+        TransformAt(pool2, index2).position
     );
     const float overlap = radiusSum - distance;
     Vector2 normal = Vector2Normalize(Vector2Subtract(
-        pool2.transform[index2].position,
-        pool1.transform[index1].position
+        TransformAt(pool2, index2).position,
+        TransformAt(pool1, index1).position
     ));
 
     const float push = overlap * 0.5f;
-    pool1.transform[index1].position = Vector2Subtract(
-        pool1.transform[index1].position,
+    TransformAt(pool1, index1).position = Vector2Subtract(
+        TransformAt(pool1, index1).position,
         Vector2Scale(normal, push)
     );
-    pool2.transform[index2].position = Vector2Add(
-        pool2.transform[index2].position,
+    TransformAt(pool2, index2).position = Vector2Add(
+        TransformAt(pool2, index2).position,
         Vector2Scale(normal, push)
     );
 
     const Vector2 relativeVelocity = Vector2Subtract(
-        pool2.transform[index2].velocity,
-        pool1.transform[index1].velocity
+        TransformAt(pool2, index2).velocity,
+        TransformAt(pool1, index1).velocity
     );
     const float velocityAlongNormal = Vector2DotProduct(relativeVelocity, normal);
 
@@ -42,11 +43,11 @@ void CircularBounce(CircularPool1& pool1, int index1, CircularPool2& pool2,
             -(1.0f + restitution) * velocityAlongNormal * 0.5f;
         const Vector2 impulse = Vector2Scale(normal, impulseMagnitude);
 
-        pool1.transform[index1].velocity = Vector2Subtract(
-            pool1.transform[index1].velocity, impulse
+        TransformAt(pool1, index1).velocity = Vector2Subtract(
+            TransformAt(pool1, index1).velocity, impulse
         );
-        pool2.transform[index2].velocity = Vector2Add(
-            pool2.transform[index2].velocity, impulse
+        TransformAt(pool2, index2).velocity = Vector2Add(
+            TransformAt(pool2, index2).velocity, impulse
         );
     }
 }
@@ -56,24 +57,24 @@ void CircularImmovableCircularBounce(CircularPool1& pool1, int index1,
                                         CircularPool2& pool2, int index2, float restitution) {
     const float radiusSum = pool1.radius[index1] + pool2.radius[index2];
     const float distance = Vector2Distance(
-        pool1.transform[index1].position,
-        pool2.transform[index2].position
+        TransformAt(pool1, index1).position,
+        TransformAt(pool2, index2).position
     );
     const float overlap = radiusSum - distance;
     Vector2 normal = Vector2Normalize(Vector2Subtract(
-        pool2.transform[index2].position,
-        pool1.transform[index1].position
+        TransformAt(pool2, index2).position,
+        TransformAt(pool1, index1).position
     ));
 
     const float push = overlap * 0.5f;
-    pool1.transform[index1].position = Vector2Subtract(
-        pool1.transform[index1].position,
+    TransformAt(pool1, index1).position = Vector2Subtract(
+        TransformAt(pool1, index1).position,
         Vector2Scale(normal, push)
     );
     
     const Vector2 relativeVelocity = Vector2Subtract(
-        pool2.transform[index2].velocity,
-        pool1.transform[index1].velocity
+        TransformAt(pool2, index2).velocity,
+        TransformAt(pool1, index1).velocity
     );
     const float velocityAlongNormal = Vector2DotProduct(relativeVelocity, normal);
 
@@ -82,8 +83,8 @@ void CircularImmovableCircularBounce(CircularPool1& pool1, int index1,
             -(1.0f + restitution) * velocityAlongNormal * 0.5f;
         const Vector2 impulse = Vector2Scale(normal, impulseMagnitude);
 
-        pool1.transform[index1].velocity = Vector2Subtract(
-            pool1.transform[index1].velocity, impulse
+        TransformAt(pool1, index1).velocity = Vector2Subtract(
+            TransformAt(pool1, index1).velocity, impulse
         );
     }                                                           
 }
@@ -92,8 +93,8 @@ template <typename CircularPool, typename RectangularPool>
 void CircularImmovableRectangularBounce(CircularPool& pool1, int index1,
                                       RectangularPool& pool2, int index2,
                                       float restitution) {
-    Vector2& center = pool1.transform[index1].position;
-    Vector2& velocity = pool1.transform[index1].velocity;
+    Vector2& center = TransformAt(pool1, index1).position;
+    Vector2& velocity = TransformAt(pool1, index1).velocity;
     const float radius = pool1.radius[index1];
     const Rectangle& rectangle = pool2.walls[index2];
 

@@ -6,13 +6,13 @@ EntityFactory::EntityFactory(CellPool& cellPool, FoodPool& foodPool, RootPool& r
 
 // Agentic Entities
 
-int EntityFactory::CreateCell(Vector2 pos, Vector2 vel, float rad, float hp, float dps, float drag,
+int EntityFactory::CreateCell(Vector2 pos, Vector2 vel, float rad, float hp, float dps, float drag, float visionRadius,
                               float life, float cool) {
     return cellPool.CreateNext({
         world::EntitySpecies::Cell,
-        entity::Transform{pos, vel},
+        State{entity::Transform{pos, vel}, hp, 0.0f, 0.0f, Vector2{1.0f, 0.0f}},
         entity::Spawning{life, cool},
-        rad, hp, dps, drag, true
+        rad, dps, drag, visionRadius, true
     });
 }
 int EntityFactory::CreateCell(const cells::CellData& data) {

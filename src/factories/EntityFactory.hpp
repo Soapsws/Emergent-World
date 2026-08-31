@@ -8,7 +8,7 @@ class EntityFactory {
 public:
     EntityFactory(CellPool& cellPool, FoodPool& foodPool, RootPool& rootPool);
 
-    int CreateCell(Vector2 pos, Vector2 vel, float rad, float hp, float dps, float drag, float life, float cool);
+    int CreateCell(Vector2 pos, Vector2 vel, float rad, float hp, float dps, float drag, float visionRadius, float life, float cool);
     int CreateCell(const cells::CellData& data);
     void RespawnWithData(int index, const cells::CellData& data);
 

@@ -123,18 +123,19 @@ void Sim::UpdateMovement(Pool& pool, int numEntities) {
             // consistent when frame rate changes (drag is tuned at 60 FPS).
             const float retention = std::clamp(1.0f - pool.drag[i], 0.0f, 1.0f);
             const float frameRetention = std::pow(retention, dt * 60.0f);
-            pool.transform[i].velocity = Vector2Scale(pool.transform[i].velocity, frameRetention);
-            pool.transform[i].position.x += pool.transform[i].velocity.x;
-            pool.transform[i].position.y += pool.transform[i].velocity.y;
-            if (pool.transform[i].position.x < 0) {
-                pool.transform[i].position.x = settings::WORLD_WIDTH;
-            } else if (pool.transform[i].position.x > settings::WORLD_WIDTH) {
-                pool.transform[i].position.x = 0;
+            auto& transform = TransformAt(pool, i);
+            transform.velocity = Vector2Scale(transform.velocity, frameRetention);
+            transform.position.x += transform.velocity.x;
+            transform.position.y += transform.velocity.y;
+            if (transform.position.x < 0) {
+                transform.position.x = settings::WORLD_WIDTH;
+            } else if (transform.position.x > settings::WORLD_WIDTH) {
+                transform.position.x = 0;
             }
-            if (pool.transform[i].position.y < 0) {
-                pool.transform[i].position.y = settings::WORLD_HEIGHT;
-            } else if (pool.transform[i].position.y > settings::WORLD_HEIGHT) {
-                pool.transform[i].position.y = 0;
+            if (transform.position.y < 0) {
+                transform.position.y = settings::WORLD_HEIGHT;
+            } else if (transform.position.y > settings::WORLD_HEIGHT) {
+                transform.position.y = 0;
             }
         }
     }
@@ -176,7 +177,15 @@ void Sim::UpdateSpawning(Pool& pool, Factory& factory, DefaultSpawn defaultSpawn
 template <typename Pool>
 void Sim::UpdateEntityHealth(Pool& pool, int numEntities) {
     for (int i = 0; i < numEntities; ++i) {
-        if (pool.active[i] && pool.health[i] <= 0.0f) {
+        const float health = [&] {
+            if constexpr (requires { pool.state[i].health; }) {
+                return pool.state[i].health;
+            } else {
+                return pool.health[i];
+            }
+        }();
+
+        if (pool.active[i] && health <= 0.0f) {
             pool.active[i] = false;
             const auto id = registry.Find(Pool::entityType, i);
             if (id != IDRegistry::InvalidID) registry.Deactivate(id);
@@ -244,9 +253,9 @@ void Sim::CEntityCEntityCollision(CircularEntityPool1& pool1, Interact1 interact
             if (!pool2.active[j]) continue;
 
             // Collision check
-            Vector2 pos1 = pool1.transform[i].position;
+            Vector2 pos1 = TransformAt(pool1, i).position;
             float rad1 = pool1.radius[i];
-            Vector2 pos2 = pool2.transform[j].position;
+            Vector2 pos2 = TransformAt(pool2, j).position;
             float rad2 = pool2.radius[j];
 
             if (CheckCollisionCircles(pos1, rad1, pos2, rad2)) {
@@ -265,7 +274,7 @@ void Sim::CEntityRObjectCollision(CircularEntityPool& pool1, Interact1 interacto
         if (!pool1.active[i]) continue;
         for (int j = 0; j < static_cast<int>(pool2.walls.size()); ++j) {
             if (CheckCollisionCircleRec(
-                    pool1.transform[i].position,
+                    TransformAt(pool1, i).position,
                     pool1.radius[i],
                     pool2.walls[j])) {
                 if constexpr (!std::is_same_v<Interact1, std::nullopt_t>) interactor1(pool1, i, pool2, j);
@@ -357,7 +366,7 @@ void Sim::ProcessSelectedEntity() {
                 return;
             }
 
-            renderer.pcam.UpdateCamera(pool.transform[selectedIndex].position);
+            renderer.pcam.UpdateCamera(TransformAt(pool, selectedIndex).position);
         }, *selectedPool);
     } else {
         renderer.pcam.ToggleFollowing(false);
@@ -370,7 +379,7 @@ int Sim::ProcessEntityClick(EntityPool& entityPool, Vector2 cursor) {
         if (entityPool.active[i] &&
             CheckCollisionPointCircle(
                 cursor,
-                entityPool.transform[i].position,
+                TransformAt(entityPool, i).position,
                 entityPool.radius[i])) {
             return static_cast<int>(i);
         }

@@ -22,7 +22,7 @@ void Renderer::ManualInit() {
 void Renderer::RenderCells(const CellPool& cellPool) {
     for (int i = 0; i < static_cast<int>(cellPool.active.size()); ++i) {
         if (cellPool.active[i]) {
-            DrawCircleV(cellPool.transform[i].position, cellPool.radius[i], colors::GetNeonColor(colors::NEON_AZURE));
+            DrawCircleV(cellPool.state[i].transform.position, cellPool.radius[i], colors::GetNeonColor(colors::NEON_AZURE));
         }
     }
 }

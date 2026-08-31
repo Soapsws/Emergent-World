@@ -2,18 +2,19 @@
 #include <vector>
 #include <raylib.h>
 #include "sim_constants.hpp"
+#include "State.hpp"
 
 struct CellPool {
 
     static constexpr world::EntityType entityType = world::EntityType::Cell;
 
     // Cell properties (Structure of Arrays)
-    std::vector<entity::Transform> transform;
+    std::vector<State> state;
     std::vector<entity::Spawning> spawning;
     std::vector<float> radius;
-    std::vector<float> health;
     std::vector<float> dps;
     std::vector<float> drag;
+    std::vector<float> visionRadius;
     std::vector<bool> active;
 
     // initialize pool with capacity (defaults to cells::MAX_CELLS)
@@ -22,7 +23,7 @@ struct CellPool {
     ~CellPool();
 
     // Create by explicit index (used by Sim.cpp)
-    int Create(int idx, Vector2 pos, Vector2 vel, float rad, float hp, float dps, float drag, float life, float cool);
+    int Create(int idx, State state, float rad, float dps, float drag, float visionRadius, float life, float cool);
 
     // Create from CellData (AoS -> SoA unpack)
     int Create(int idx, const cells::CellData& d);

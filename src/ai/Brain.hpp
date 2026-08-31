@@ -2,6 +2,8 @@
 
 #include <utility>
 #include <vector>
+#include <algorithm>
+#include <cmath>
 #include <Eigen/Dense>
 
 // To-Do: implement predator with dumb tracking
@@ -30,9 +32,9 @@ class Brain {
             angle to nearest predator (sin)
             angle to nearest predator (cos)
 
-            distance to nearest wall
-            angle to nearest wall (sin)
-            angle to nearest wall (cos)
+            left whisker wall proximity
+            center whisker wall proximity
+            right whisker wall proximity
 
             health
             energy
@@ -46,12 +48,18 @@ class Brain {
             throttle 
         }
         Activation function 3: tanh
-            -> encoding output 1 (torque) and output 2 (throttle) between 0 and 1 to fit tanh model
+            -> encoding output 1 (torque) and output 2 (throttle) between -1 and 1 to fit tanh model
     */
 
-    std::vector<float> ForwardPass(const std::vector<float>& input);
+    std::vector<float> ForwardPass();
+
+    void RefreshInput(const std::vector<float>& input) {
+        current_input = input;
+    }
 
     private:
+
+        std::vector<float> current_input;
 
         // weights will be fixed after headless training in python environment, and loaded into the C++ environment for inference
 

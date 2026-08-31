@@ -7,6 +7,7 @@
 #include <raylib.h>
 
 #include "IDRegistry.hpp"
+#include "sim_constants.hpp"
 
 struct HashGrid {
 
@@ -60,6 +61,17 @@ struct HashGrid {
 
         return nearbyIDs;
     }
+
+    std::vector<IDRegistry::GlobalID> CheckEntitiesInRange(float x, float y, float radius) const {
+        std::vector<IDRegistry::GlobalID> nearbyIDs;
+        // pair unpacking notation
+        const auto [centerX, centerY] = FindCell(x, y);
+
+
+        return nearbyIDs;
+    }
+
+
 
     // Cleared & rebuilt every frame
     void Clear() {
