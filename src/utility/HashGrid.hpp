@@ -67,15 +67,6 @@ struct HashGrid {
         return nearbyIDs;
     }
 
-    std::vector<IDRegistry::GlobalID> CheckEntitiesInRange(float x, float y, float radius) const {
-        std::vector<IDRegistry::GlobalID> nearbyIDs;
-        // pair unpacking notation
-        const auto [centerX, centerY] = FindCell(x, y);
-
-        return nearbyIDs;
-    }
-
-
 
     // Cleared & rebuilt every frame
     void Clear() {

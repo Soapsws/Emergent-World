@@ -10,6 +10,7 @@
 #include "EntityFactory.hpp"
 #include "IDRegistry.hpp"
 #include "HashGrid.hpp"
+#include "TransformAccess.hpp"
 #include "HashGrid.hpp"
 #include "Renderer.hpp"
 #include "Walls.hpp"
