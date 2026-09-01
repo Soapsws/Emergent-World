@@ -7,7 +7,6 @@
 #include "RootPool.hpp"
 #include "IDRegistry.hpp"
 #include "HashGrid.hpp"
-#include "TransformAccess.hpp"
 
 class StateEncoder {
 
@@ -24,9 +23,12 @@ class StateEncoder {
             const IDRegistry& registry, const HashGrid& hashGrid);
         ~StateEncoder() = default;  
         
-        std::vector<entity::Transform> getXNearest(float x, float y, float radius, world::EntityType entityType);
-        std::vector<entity::Transform> getXNearestFood(float x, float y, float radius);
-        std::vector<entity::Transform> getXNearestPredator(float x, float y, float radius);
+        std::vector<entity::Transform> GetInRange(float x, float y, float radius, world::EntityType entityType);
+        std::vector<entity::Transform> GetFoodInRange(float x, float y, float radius);
+        std::vector<entity::Transform> GetPredatorsInRange(float x, float y, float radius);
+
+        std::vector<entity::Transform> GetXClosest(float x, float y,
+            std::vector<entity::Transform> transforms, int num);
 
         
     private:
@@ -37,4 +39,5 @@ class StateEncoder {
 
         const IDRegistry& registry;
         const HashGrid& hashGrid;
+
 };
