@@ -15,6 +15,10 @@ namespace settings {
     const int WORLD_EDGE_SPAWN_OFFSET = 100;
 }
 
+namespace util {
+    constexpr int HASH_TABLE_SIZE = 1024;
+}
+
 namespace world {
     const int ENTITY_SPECIES_COUNT = 1;
     const int FOOD_TYPE_COUNT = 1;

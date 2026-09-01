@@ -9,6 +9,8 @@
 #include "RootPool.hpp"
 #include "EntityFactory.hpp"
 #include "IDRegistry.hpp"
+#include "HashGrid.hpp"
+#include "HashGrid.hpp"
 #include "Renderer.hpp"
 #include "Walls.hpp"
 #include "UI.hpp"
@@ -60,6 +62,8 @@ class Sim {
 
         void ProcessInput();
 
+        std::vector<HashGrid::EntityPosition> GetActiveEntityPositions() const;
+
         void ProcessEntitySelection(Vector2 cursor);
 
         void ProcessSelectedEntity();
@@ -85,8 +89,9 @@ class Sim {
         int maxFood;
         int maxRoots; // env
 
-        // Registry
+        // Registry + hashing
         IDRegistry registry;
+        HashGrid hashGrid;
 
         // Environment & UI
         Walls walls;

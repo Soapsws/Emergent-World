@@ -41,6 +41,7 @@ Sim::Sim() : cellPool(cells::MAX_CELLS), foodPool(food::MAX_NATURAL_FOOD), rootP
                 entityFactory(cellPool, foodPool, rootPool),
                 maxCells(cells::MAX_CELLS), maxFood(food::MAX_NATURAL_FOOD), maxRoots(roots::MAX_ROOTS),
                 registry(),
+                hashGrid(util::HASH_TABLE_SIZE),
                 walls(),
                 renderer(),
                 gui(true, renderer.pcam, maxCells, maxFood) {
@@ -70,13 +71,14 @@ void Sim::InitSpawn() {
         cells::CellData data = cells::defaultSpawn();
         int id = entityFactory.CreateCell(data);
         if (id >= 0) {
-            registry.AddEntity(world::EntityType::Cell, id);
+            int globalID = registry.AddEntity(world::EntityType::Cell, id);
         }
+
     }
     for (int i = 0; i < maxRoots; ++i) {
         int id = entityFactory.CreateRoot(roots::defaultSpawn());
         if (id >= 0) {
-            registry.AddEntity(world::EntityType::Root, id);
+            int globalID = registry.AddEntity(world::EntityType::Root, id);
         }
     }
 }
@@ -87,8 +89,9 @@ void Sim::Update() {
     // Below is a callable that takes no arguments and returns a new entity spawn data
             // Full form: [ capture_clause ] ( parameter_list ) specifiers -> return_type { body }
             // "-> return type" can be omitted unless it must be specified.
-    // If you just pass the function you'd have to call it INSIDE the function and manually capture the function.
-    
+    // Allows the function to be passed as a packaged executable that can be selectively called or not.
+    // If you just pass the function it'd be called immediately and be passed as its return type.
+
     UpdateSpawning(cellPool, entityFactory, [] { return cells::defaultSpawn(); }, maxCells);
     UpdateSpawning(foodPool, entityFactory, [] { return food::defaultSpawn(); }, maxFood, false);
     UpdateSpawning(rootPool, entityFactory, [] { return roots::defaultSpawn(); }, maxRoots);
@@ -104,6 +107,11 @@ void Sim::Update() {
     UpdateMovement(cellPool, maxCells);
     UpdateMovement(foodPool, maxFood);
 
+    // Hash Grid Clear + Rebuild every frame
+    hashGrid.Clear();
+    hashGrid.Build(GetActiveEntityPositions());
+
+
     UpdateCollisions();
 
     UpdateEntityHealth(cellPool, maxCells);
@@ -112,6 +120,28 @@ void Sim::Update() {
     // USER INPUT
 
     ProcessInput();
+}
+
+std::vector<HashGrid::EntityPosition> Sim::GetActiveEntityPositions() const {
+    std::vector<HashGrid::EntityPosition> positions;
+
+    // lambda
+    const auto appendActive = [&](const auto& pool) {
+        for (int index = 0; index < static_cast<int>(pool.active.size()); ++index) {
+            if (!pool.active[index]) continue;
+
+            const auto id = registry.Find(pool.entityType, index);
+            if (id == IDRegistry::InvalidID) continue;
+
+            positions.push_back({id, TransformAt(pool, index).position});
+        }
+    };
+
+    appendActive(cellPool);
+    appendActive(foodPool);
+    appendActive(rootPool);
+
+    return positions;
 }
 
 template <typename Pool>
@@ -246,17 +276,27 @@ void Sim::CEntityCEntityCollision(CircularEntityPool1& pool1, Interact1 interact
     for (int i = 0; i < static_cast<int>(pool1.active.size()); ++i) {
         if (!pool1.active[i]) continue;
 
-        int jStart = 0;
-        if (samePool) jStart = i + 1;
+        // Retrieves position and radius of the current entity
+        const Vector2 pos1 = TransformAt(pool1, i).position;
+        const float rad1 = pool1.radius[i];
 
-        for (int j = jStart; j < static_cast<int>(pool2.active.size()); ++j) {
-            if (!pool2.active[j]) continue;
+        // Retrieves the ID of the current entity from the registry
+        const auto sourceID = registry.Find(CircularEntityPool1::entityType, i);
+        if (sourceID == IDRegistry::InvalidID) continue;
 
-            // Collision check
-            Vector2 pos1 = TransformAt(pool1, i).position;
-            float rad1 = pool1.radius[i];
-            Vector2 pos2 = TransformAt(pool2, j).position;
-            float rad2 = pool2.radius[j];
+        // Optimized collision detection within cell
+        for (const int candidateID : hashGrid.CheckInteractions(pos1.x, pos1.y)) {
+            if (samePool && candidateID <= sourceID) continue;
+
+            // Retrieves type, local pool index, active
+            const IDRegistry::EntityRef& candidate = registry.Get(candidateID);
+            if (candidate.type != CircularEntityPool2::entityType) continue;
+
+            const int j = candidate.poolIndex;
+            if (j < 0 || j >= static_cast<int>(pool2.active.size()) || !pool2.active[j]) continue;
+
+            const Vector2 pos2 = TransformAt(pool2, j).position;
+            const float rad2 = pool2.radius[j];
 
             if (CheckCollisionCircles(pos1, rad1, pos2, rad2)) {
                 // constexpr specifies it can be evaluated at compile-time. regular "if" is runtime and causes a bad nullopt compilation

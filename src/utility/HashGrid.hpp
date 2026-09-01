@@ -11,6 +11,11 @@
 
 struct HashGrid {
 
+    struct EntityPosition {
+        IDRegistry::GlobalID id;
+        Vector2 position;
+    };
+
     HashGrid(int tableSize) : tableSize(tableSize), cellSize(std::max(1, tableSize / 5)) {
         head.assign(tableSize, -1); 
     }
@@ -67,7 +72,6 @@ struct HashGrid {
         // pair unpacking notation
         const auto [centerX, centerY] = FindCell(x, y);
 
-
         return nearbyIDs;
     }
 
@@ -80,6 +84,12 @@ struct HashGrid {
         cellX.clear();
         cellY.clear();
         next.clear();
+    }
+
+    void Build(std::vector<HashGrid::EntityPosition> positions) {
+        for (const auto& [id, position] : positions) {
+            AddEntity(id, position.x, position.y);
+        }
     }
 
     int tableSize; // # of buckets
