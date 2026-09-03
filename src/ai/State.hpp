@@ -25,13 +25,13 @@ struct State {
     // const suffix -> promises not to modify the object it is called on
 
     // to be passed: StateEncoder::RaycastCollision
-    float getWhiskerWallProximity(const entity::Transform&, float, float,
+    float getWhiskerProximity(const entity::Transform&, float, float,
         const std::function<float(const entity::Transform&, float, float)>&) const;
-    float getLeftWhiskerWallProximity(const entity::Transform&,
+    float getLeftWhiskerProximity(const entity::Transform&,
         const std::function<float(const entity::Transform&, float, float)>&) const;
-    float getRightWhiskerWallProximity(const entity::Transform&,
+    float getRightWhiskerProximity(const entity::Transform&,
         const std::function<float(const entity::Transform&, float, float)>&) const;
-    float getCenterWhiskerWallProximity(const entity::Transform&,
+    float getCenterWhiskerProximity(const entity::Transform&,
         const std::function<float(const entity::Transform&, float, float)>&) const;
 
     std::vector<float> getNearestFoodTransform(const entity::Transform& transform,

@@ -40,6 +40,7 @@ The member initialization list initializes class members before the constructor 
 Sim::Sim() : cellPool(cells::MAX_CELLS), foodPool(food::MAX_NATURAL_FOOD), rootPool(roots::MAX_ROOTS),
                 entityFactory(cellPool, foodPool, rootPool),
                 maxCells(cells::MAX_CELLS), maxFood(food::MAX_NATURAL_FOOD), maxRoots(roots::MAX_ROOTS),
+                cellBrain(),
                 registry(),
                 hashGrid(util::HASH_TABLE_SIZE),
                 walls(),
@@ -146,26 +147,17 @@ std::vector<HashGrid::EntityPosition> Sim::GetActiveEntityPositions() const {
 
 template <typename Pool>
 void Sim::UpdateMovement(Pool& pool, int numEntities) {
-    const float dt = GetFrameTime();
     for (int i = 0; i < numEntities; ++i) {
         if (pool.active[i]) {
-            // Drag is normalized: 0 = no drag. The exponent keeps the result
-            // consistent when frame rate changes (drag is tuned at 60 FPS).
-            const float retention = std::clamp(1.0f - pool.drag[i], 0.0f, 1.0f);
-            const float frameRetention = std::pow(retention, dt * 60.0f);
-            auto& transform = TransformAt(pool, i);
-            transform.velocity = Vector2Scale(transform.velocity, frameRetention);
-            transform.position.x += transform.velocity.x;
-            transform.position.y += transform.velocity.y;
-            if (transform.position.x < 0) {
-                transform.position.x = settings::WORLD_WIDTH;
-            } else if (transform.position.x > settings::WORLD_WIDTH) {
-                transform.position.x = 0;
-            }
-            if (transform.position.y < 0) {
-                transform.position.y = settings::WORLD_HEIGHT;
-            } else if (transform.position.y > settings::WORLD_HEIGHT) {
-                transform.position.y = 0;
+            if constexpr (requires { pool.state[index] }) {
+                // stateful action (intelligent) 
+                const auto& [thrust, alpha] = cellBrain.RefreshInput()
+                const Action action(thrust, alpha);
+                action.ApplyOnEntity(pool, i);
+            } else {
+                // stateless action (for now, no chnges will be made to velocity)
+                const Action action(0, 0);
+                action.ApplyOnEntity(pool, i);
             }
         }
     }

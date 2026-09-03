@@ -59,6 +59,7 @@ add_executable(emergent_world
     src/main.cpp
     src/ai/Brain.cpp
     src/ai/State.cpp
+    src/ai/Action.cpp
     src/sim/StateEncoder.cpp
     src/sim/Sim.cpp
     src/pools/CellPool.cpp

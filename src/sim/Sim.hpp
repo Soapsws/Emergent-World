@@ -15,6 +15,7 @@
 #include "Renderer.hpp"
 #include "Walls.hpp"
 #include "UI.hpp"
+#include "Action.hpp"
 
 class Sim {
 
@@ -89,6 +90,11 @@ class Sim {
         int maxCells;
         int maxFood;
         int maxRoots; // env
+
+
+        // AI
+
+        Brain cellBrain;
 
         // Registry + hashing
         IDRegistry registry;

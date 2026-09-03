@@ -131,4 +131,12 @@ namespace math {
         return {x1 + t * dx, y1 + t * dy};
     }
 
+    inline float SignedAngleBetweenVectors(Vector2 a, Vector2 b) {
+        // angle to take a to b
+
+        return std::atan2(
+            a.x * b.y - a.y * b.x,
+            a.x * b.x + a.y * b.y
+        );
+    }
 }

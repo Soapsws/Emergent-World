@@ -40,6 +40,9 @@ class StateEncoder {
         std::vector<entity::Transform> GetXClosest(float x, float y,
             std::vector<entity::Transform> transforms, int num) const;
 
+        // most important
+        
+
         
     private:
         const CellPool& cells;

@@ -32,9 +32,9 @@ class Brain {
             angle to nearest predator (sin)
             angle to nearest predator (cos)
 
-            left whisker wall proximity
-            center whisker wall proximity
-            right whisker wall proximity
+            left whisker proximity
+            center whisker proximity
+            right whisker proximity
 
             health
             energy
@@ -43,12 +43,12 @@ class Brain {
         Activation function 1: ReLU
        Hidden layer: 10 neurons 
         Activation function 2: ReLU
-       Output layer: 2 neurons { 
-            torque
-            throttle 
+        Output layer: 2 neurons { 
+            thrust
+            alpha
         }
         Activation function 3: tanh
-            -> encoding output 1 (torque) and output 2 (throttle) between -1 and 1 to fit tanh model
+            -> encoding output 1 (thrust) and output 2 (alpha) between -1 and 1 to fit tanh model
     */
 
     std::vector<float> ForwardPass();
