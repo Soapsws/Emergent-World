@@ -24,6 +24,7 @@ struct State {
 
     // const suffix -> promises not to modify the object it is called on
 
+    // to be passed: StateEncoder::RaycastCollision
     float getWhiskerWallProximity(const entity::Transform&, float, float,
         const std::function<float(const entity::Transform&, float, float)>&) const;
     float getLeftWhiskerWallProximity(const entity::Transform&,
@@ -45,5 +46,6 @@ struct State {
         const std::function<float(const entity::Transform&, float, float)>& checkRayCollision,
         const std::function<std::vector<float>(const entity::Transform&, 
         world::EntityType entityType1, world::EntityType entityType2)>& checkFoodProximity);
+
 
 };

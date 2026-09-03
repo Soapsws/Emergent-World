@@ -7,8 +7,16 @@
 #include "RootPool.hpp"
 #include "IDRegistry.hpp"
 #include "HashGrid.hpp"
+#include "Walls.hpp"
 
 class StateEncoder {
+    public:
+        struct EntityInfo {
+            IDRegistry::GlobalID id;
+            world::EntityType type;
+            entity::Transform transform;
+            float radius;
+        };
 
     /*
     Includes all helper functions for state encoding for individual entities and general logging
@@ -20,15 +28,17 @@ class StateEncoder {
 
     public:
         StateEncoder(const CellPool& cells, const FoodPool& food, const RootPool& root, 
-            const IDRegistry& registry, const HashGrid& hashGrid);
+            const IDRegistry& registry, const HashGrid& hashGrid, const Walls& walls);
         ~StateEncoder() = default;  
         
-        std::vector<entity::Transform> GetInRange(float x, float y, float radius, world::EntityType entityType);
-        std::vector<entity::Transform> GetFoodInRange(float x, float y, float radius);
-        std::vector<entity::Transform> GetPredatorsInRange(float x, float y, float radius);
+        std::vector<EntityInfo> GetInRange(float x, float y, float radius, world::EntityType entityType) const;
+        std::vector<EntityInfo> GetFoodInRange(float x, float y, float radius) const;
+        std::vector<EntityInfo> GetPredatorsInRange(float x, float y, float radius) const;
+
+        float RaycastCollision(const entity::Transform& transform, float endX, float endY) const;
 
         std::vector<entity::Transform> GetXClosest(float x, float y,
-            std::vector<entity::Transform> transforms, int num);
+            std::vector<entity::Transform> transforms, int num) const;
 
         
     private:
@@ -39,5 +49,7 @@ class StateEncoder {
 
         const IDRegistry& registry;
         const HashGrid& hashGrid;
+
+        const Walls& walls;
 
 };

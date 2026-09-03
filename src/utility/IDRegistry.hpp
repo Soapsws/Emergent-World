@@ -110,7 +110,7 @@ public:
     }
 
 private:
-    static constexpr std::size_t TypeCount = 5;
+    static constexpr std::size_t TypeCount = 6;
 
     static constexpr std::size_t TypeIndex(world::EntityType type) {
         return static_cast<std::size_t>(type);
