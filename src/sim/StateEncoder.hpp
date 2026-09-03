@@ -1,6 +1,11 @@
 #pragma once
 
+#include <raylib.h>
+#include <raymath.h>
+
 #include <vector>
+#include <cstddef>
+#include <limits>
 #include "sim_constants.hpp"
 #include "CellPool.hpp"
 #include "FoodPool.hpp"
@@ -8,6 +13,7 @@
 #include "IDRegistry.hpp"
 #include "HashGrid.hpp"
 #include "Walls.hpp"
+#include "Math.hpp"
 
 class StateEncoder {
     public:
@@ -41,6 +47,60 @@ class StateEncoder {
             std::vector<entity::Transform> transforms, int num) const;
 
         // most important
+        template <typename StatefulEntityPool>
+        std::vector<float> AggregateData(const StatefulEntityPool& entityPool, int i) const {
+            // This is deliberately explicit for now: food and predator sensing
+            // are parallel examples that can be generalized later.
+            std::vector<float> data;
+            const State& state = entityPool.state[i];
+            const Vector2 position = state.transform.position;
+            const float sensoryRadius = entityPool.visionRadius[i];
+
+            std::vector<EntityInfo> nearbyFood = GetFoodInRange(position.x, position.y, sensoryRadius);
+            std::vector<entity::Transform> nearbyFoodTransforms;
+            for (const EntityInfo& entity : nearbyFood) nearbyFoodTransforms.push_back(entity.transform);
+            const auto closestFood = GetXClosest(position.x, position.y, nearbyFoodTransforms, 1);
+
+            float foodDistance = sensoryRadius;
+            float foodAngle = 0.0f;
+            if (!closestFood.empty()) {
+                const Vector2 toFood = Vector2Subtract(closestFood.front().position, position);
+                foodDistance = Vector2Length(toFood);
+                foodAngle = math::SignedAngleBetweenVectors(state.facing, Vector2Normalize(toFood));
+            }
+            data.push_back(foodDistance);
+            data.push_back(std::sin(foodAngle));
+            data.push_back(std::cos(foodAngle));
+
+            std::vector<EntityInfo> nearbyPredators = GetPredatorsInRange(position.x, position.y, sensoryRadius);
+            std::vector<entity::Transform> nearbyPredatorTransforms;
+            for (const EntityInfo& entity : nearbyPredators) nearbyPredatorTransforms.push_back(entity.transform);
+            const auto closestPredator = GetXClosest(position.x, position.y, nearbyPredatorTransforms, 1);
+            float predatorDistance = sensoryRadius;
+            float predatorAngle = 0.0f;
+            if (!closestPredator.empty()) {
+                const Vector2 toPredator = Vector2Subtract(closestPredator.front().position, position);
+                predatorDistance = Vector2Length(toPredator);
+                predatorAngle = math::SignedAngleBetweenVectors(state.facing, Vector2Normalize(toPredator));
+            }
+            data.push_back(predatorDistance);
+            data.push_back(std::sin(predatorAngle));
+            data.push_back(std::cos(predatorAngle));
+
+            const auto ray = [&](float offset, float length) {
+                const float facingAngle = std::atan2(state.facing.y, state.facing.x) + offset;
+                return RaycastCollision(state.transform,
+                    position.x + length * std::cos(facingAngle),
+                    position.y + length * std::sin(facingAngle));
+            };
+            data.push_back(ray(-0.5f, 10.0f));
+            data.push_back(ray(0.0f, 14.0f));
+            data.push_back(ray(0.5f, 10.0f));
+            data.push_back(state.health);
+            data.push_back(state.energy);
+            data.push_back(state.hunger);
+            return data;
+        }
         
 
         

@@ -16,6 +16,7 @@
 #include "Walls.hpp"
 #include "UI.hpp"
 #include "Action.hpp"
+#include "Brain.hpp"
 
 class Sim {
 

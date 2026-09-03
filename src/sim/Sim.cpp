@@ -149,16 +149,11 @@ template <typename Pool>
 void Sim::UpdateMovement(Pool& pool, int numEntities) {
     for (int i = 0; i < numEntities; ++i) {
         if (pool.active[i]) {
-            if constexpr (requires { pool.state[index] }) {
-                // stateful action (intelligent) 
-                const auto& [thrust, alpha] = cellBrain.RefreshInput()
-                const Action action(thrust, alpha);
-                action.ApplyOnEntity(pool, i);
-            } else {
-                // stateless action (for now, no chnges will be made to velocity)
-                const Action action(0, 0);
-                action.ApplyOnEntity(pool, i);
-            }
+            // The brain-to-action linker belongs here once the encoder is
+            // connected. Until then, a neutral action still applies shared
+            // drag and movement integration to every pool.
+            const Action action{0.0f, 0.0f};
+            action.ApplyOnEntity(pool, i);
         }
     }
 }
