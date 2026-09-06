@@ -71,6 +71,8 @@ add_executable(emergent_world
     src/sim/Walls.cpp
     src/rendering/UI.cpp
     src/pools/RootPool.cpp
+    src/utility/implot/implot.cpp
+    src/utility/implot/implot_items.cpp
 )
 
 target_include_directories(emergent_world PRIVATE
@@ -81,6 +83,7 @@ target_include_directories(emergent_world PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/rendering
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utility
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ai
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utility/implot
 )
 
 # Note how dependencies are propagated from above; see target_link_libraries for rlImGui

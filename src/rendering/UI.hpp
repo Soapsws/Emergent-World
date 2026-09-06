@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Camera.hpp"
+#include "implot.h"
 #include <vector>
 
 struct UI {

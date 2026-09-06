@@ -106,8 +106,10 @@ class Sim {
         StateEncoder encoder;
         Renderer renderer;
         UI gui;
-
+        
+        // pool, is stateful
         std::optional<SelectedPool> selectedPool;
+
         int selectedIndex {-1};
         world::EntityType selectedType {world::EntityType::None};
 };

@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <numeric>
 #include <random>
+#include "imgui.h"
 
 #include "Sim.hpp"
 #include "sim_constants.hpp"
@@ -335,7 +336,7 @@ void Sim::ProcessInput() {
                 renderer.pcam.Data()
     );
 
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !ImGui::GetIO().WantCaptureMouse) {
         ProcessEntitySelection(cursor);
     }
 
@@ -375,7 +376,9 @@ void Sim::ProcessEntitySelection(Vector2 cursor) {
                 found = true;
 
                 // Figure out which type this specific 'pool' is using compile-time type checking
-                if constexpr (std::is_same_v<std::decay_t<decltype(pool)>, CellPool>) selectedType = world::EntityType::Cell;
+                if constexpr (std::is_same_v<std::decay_t<decltype(pool)>, CellPool>) {
+                    selectedType = world::EntityType::Cell;
+                }
                 else if constexpr (std::is_same_v<std::decay_t<decltype(pool)>, FoodPool>) selectedType = world::EntityType::Food;
                 else if constexpr (std::is_same_v<std::decay_t<decltype(pool)>, RootPool>) selectedType = world::EntityType::Root;
                 
@@ -447,6 +450,15 @@ void Sim::Render() {
         // ~~~~~~~~ UI outside of Camera2D block so it tracks with the frame, not the world
 
         gui.Begin();
+
+            if (selectedPool.has_value()) {
+                std::visit([&](auto& wrappedPool) {
+                    auto& pool = wrappedPool.get();
+                    if constexpr (std::is_same_v<std::decay_t<decltype(pool)>, CellPool>) {
+                        gui.TrackStatefulEntity(encoder.AggregateData(pool, selectedIndex));
+                    }
+                }, *selectedPool);
+            }
 
             gui.Draw();
 
