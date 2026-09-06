@@ -19,7 +19,7 @@ void UI::Begin() {
     rlImGuiBegin();
 }
 
-void UI::TrackStatefulEntity() {
+void UI::TrackStatefulEntity(std::vector<float> data) {
     
 }
 

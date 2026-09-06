@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Camera.hpp"
+#include <vector>
 
 struct UI {
 
@@ -19,7 +20,7 @@ struct UI {
     void Begin();
     void End();
 
-    void TrackStatefulEntity();
+    void TrackStatefulEntity(std::vector<float> data);
 
     void Draw();
 
