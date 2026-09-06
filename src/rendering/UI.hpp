@@ -19,6 +19,8 @@ struct UI {
     void Begin();
     void End();
 
+    void TrackStatefulEntity();
+
     void Draw();
 
 private:
@@ -26,4 +28,5 @@ private:
     int& maxCells;
     int& maxFood;
 
+    int EntityTrackedID;
 };

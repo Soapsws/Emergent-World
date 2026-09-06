@@ -45,7 +45,8 @@ Sim::Sim() : cellPool(cells::MAX_CELLS), foodPool(food::MAX_NATURAL_FOOD), rootP
                 hashGrid(util::HASH_TABLE_SIZE),
                 walls(),
                 renderer(),
-                gui(true, renderer.pcam, maxCells, maxFood) {
+                gui(true, renderer.pcam, maxCells, maxFood),
+                encoder(cellPool, foodPool, rootPool, registry, hashGrid, walls) {
 
 
     InitWindow(settings::SCREEN_WIDTH, settings::SCREEN_HEIGHT, "Emergent World");
@@ -69,7 +70,7 @@ void Sim::Run() {
 
 void Sim::InitSpawn() {
     for (int i = 0; i < maxCells; ++i) {
-        cells::CellData data = cells::defaultSpawn();
+        cells::CellData data = cells::DefaultSpawn();
         int id = entityFactory.CreateCell(data);
         if (id >= 0) {
             int globalID = registry.AddEntity(world::EntityType::Cell, id);
@@ -77,7 +78,7 @@ void Sim::InitSpawn() {
 
     }
     for (int i = 0; i < maxRoots; ++i) {
-        int id = entityFactory.CreateRoot(roots::defaultSpawn());
+        int id = entityFactory.CreateRoot(roots::DefaultSpawn());
         if (id >= 0) {
             int globalID = registry.AddEntity(world::EntityType::Root, id);
         }
@@ -93,9 +94,9 @@ void Sim::Update() {
     // Allows the function to be passed as a packaged executable that can be selectively called or not.
     // If you just pass the function it'd be called immediately and be passed as its return type.
 
-    UpdateSpawning(cellPool, entityFactory, [] { return cells::defaultSpawn(); }, maxCells);
-    UpdateSpawning(foodPool, entityFactory, [] { return food::defaultSpawn(); }, maxFood, false);
-    UpdateSpawning(rootPool, entityFactory, [] { return roots::defaultSpawn(); }, maxRoots);
+    UpdateSpawning(cellPool, entityFactory, [] { return cells::DefaultSpawn(); }, maxCells);
+    UpdateSpawning(foodPool, entityFactory, [] { return food::DefaultSpawn(); }, maxFood, false);
+    UpdateSpawning(rootPool, entityFactory, [] { return roots::DefaultSpawn(); }, maxRoots);
 
     // With more unique entity functionality, move this into helper function
     std::vector<int> rootOrder(maxRoots);
@@ -152,6 +153,15 @@ void Sim::UpdateMovement(Pool& pool, int numEntities) {
             // The brain-to-action linker belongs here once the encoder is
             // connected. Until then, a neutral action still applies shared
             // drag and movement integration to every pool.
+
+
+            /* FUTURE LINKER CODE
+
+            if (is stateful)
+            vector<float> data = stateEncoder.AggregateData(pool, i)
+
+            */ 
+
             const Action action{0.0f, 0.0f};
             action.ApplyOnEntity(pool, i);
         }
@@ -322,7 +332,7 @@ void Sim::ProcessInput() {
 
     Vector2 cursor = GetScreenToWorld2D(
         GetMousePosition(),
-        renderer.pcam.data()
+                renderer.pcam.Data()
     );
 
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
@@ -423,7 +433,7 @@ void Sim::Render() {
 
     BeginDrawing(); 
 
-        BeginMode2D(renderer.pcam.data()); 
+            BeginMode2D(renderer.pcam.Data()); 
             ClearBackground(BLACK);
 
             renderer.RenderCells(cellPool);

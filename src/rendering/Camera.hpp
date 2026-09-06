@@ -30,10 +30,10 @@ class PlayerCamera {
 
         void Pan(float angle);
 
-        float panSpeed() const;
+        float PanSpeed() const;
         void SetPanSpeed(float value);
 
         void ResetTransform();
 
-        Camera2D& data();
+        Camera2D& Data();
 };

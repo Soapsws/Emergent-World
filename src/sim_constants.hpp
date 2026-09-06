@@ -100,7 +100,7 @@ namespace cells {
         bool active;
     };
 
-    inline cells::CellData defaultSpawn() {
+    inline cells::CellData DefaultSpawn() {
     const float facingAngle = math::GetRandomFloat(DEFAULT.facingAngleBounds.x, DEFAULT.facingAngleBounds.y);
     return {
         world::EntitySpecies::Cell,
@@ -177,7 +177,7 @@ namespace food {
         // add more e.g. hunger restored, energy gained, exp gained, etc.
     };
 
-    inline FoodData defaultSpawn() {
+    inline FoodData DefaultSpawn() {
         return {
             world::FoodTypes::Food_All,
             entity::Transform{
@@ -235,7 +235,7 @@ namespace roots {
         bool active;
     };
 
-    inline RootData defaultSpawn() {
+    inline RootData DefaultSpawn() {
         return {
             entity::Transform{
                 Vector2{

@@ -39,7 +39,7 @@ void PlayerCamera::Pan(float angle) {
     cam2d.target = Vector2Add(cam2d.target, Vector2{speed * cosf(angle * DEG2RAD), speed * sinf(angle * DEG2RAD)});
 }
 
-float PlayerCamera::panSpeed() const {
+float PlayerCamera::PanSpeed() const {
     return speed;
 }
 
@@ -53,6 +53,6 @@ void PlayerCamera::ResetTransform() {
     following = false;
 }
 
-Camera2D& PlayerCamera::data() {
+Camera2D& PlayerCamera::Data() {
     return cam2d;
 }

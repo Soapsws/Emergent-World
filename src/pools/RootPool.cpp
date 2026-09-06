@@ -47,7 +47,7 @@ void RootPool::SpawnFood(int index, EntityFactory& entityFactory, IDRegistry& re
 
     spawnCooldown[index] -= dt;
     if (spawnCooldown[index] <= 0.0f) {
-        const food::FoodData defaults = food::defaultSpawn();
+        const food::FoodData defaults = food::DefaultSpawn();
         const float angle = math::GetRandomFloat(0.0f, 2.0f * PI);
         const Vector2 direction{ cosf(angle), sinf(angle) };
         const float gap = 1.0f;

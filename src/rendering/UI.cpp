@@ -19,6 +19,10 @@ void UI::Begin() {
     rlImGuiBegin();
 }
 
+void UI::TrackStatefulEntity() {
+    
+}
+
 
 void UI::End() {
     rlImGuiEnd();
@@ -27,7 +31,7 @@ void UI::End() {
 void UI::Draw() {
     if (ImGui::Begin("UI")) {
         if (ImGui::CollapsingHeader("User settings", ImGuiTreeNodeFlags_DefaultOpen)) {
-            float panSpeed = camera.panSpeed();
+            float panSpeed = camera.PanSpeed();
             if (ImGui::SliderFloat("Camera speed", &panSpeed, 0.5f, 8.0f)) {
                 camera.SetPanSpeed(panSpeed);
             }

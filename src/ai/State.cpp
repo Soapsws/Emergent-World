@@ -4,7 +4,7 @@
 
 #include "sim_constants.hpp"
 
-float State::getWhiskerProximity(const entity::Transform& transform, float angle,
+float State::GetWhiskerProximity(const entity::Transform& transform, float angle,
     float whiskerLength,
     const std::function<float(const entity::Transform&, float, float)>& checkRayCollision) const {
     const float facingAngle = std::atan2(facing.y, facing.x);
@@ -14,22 +14,22 @@ float State::getWhiskerProximity(const entity::Transform& transform, float angle
     return checkRayCollision(transform, endX, endY);
 }
 
-float State::getLeftWhiskerProximity(const entity::Transform& transform,
+float State::GetLeftWhiskerProximity(const entity::Transform& transform,
     const std::function<float(const entity::Transform&, float, float)>& checkRayCollision) const {
-    return getWhiskerProximity(transform, -0.5f, 10.0f, checkRayCollision);
+    return GetWhiskerProximity(transform, -0.5f, 10.0f, checkRayCollision);
 }
 
-float State::getRightWhiskerProximity(const entity::Transform& transform,
+float State::GetRightWhiskerProximity(const entity::Transform& transform,
     const std::function<float(const entity::Transform&, float, float)>& checkRayCollision) const {
-    return getWhiskerProximity(transform, 0.5f, 10.0f, checkRayCollision);
+    return GetWhiskerProximity(transform, 0.5f, 10.0f, checkRayCollision);
 }
 
-float State::getCenterWhiskerProximity(const entity::Transform& transform,
+float State::GetCenterWhiskerProximity(const entity::Transform& transform,
     const std::function<float(const entity::Transform&, float, float)>& checkRayCollision) const {
-    return getWhiskerProximity(transform, 0.0f, 14.0f, checkRayCollision);
+    return GetWhiskerProximity(transform, 0.0f, 14.0f, checkRayCollision);
 }
 
-std::vector<float> State::getNearestFoodTransform(const entity::Transform& transform, 
+std::vector<float> State::GetNearestFoodTransform(const entity::Transform& transform, 
     const std::function<std::vector<float>(const entity::Transform&, 
     world::EntityType entityType1, world::EntityType entityType2)>& checkFoodProximity) const {
 
@@ -37,32 +37,32 @@ std::vector<float> State::getNearestFoodTransform(const entity::Transform& trans
     return nearestFoodTransform;
 }
 
-std::vector<float> State::getNearestPredatorTransform(const entity::Transform& transform,
+std::vector<float> State::GetNearestPredatorTransform(const entity::Transform& transform,
     const std::function<std::vector<float>(const entity::Transform&,
     world::EntityType, world::EntityType)>& checkPredatorProximity) const {
     return checkPredatorProximity(transform, world::EntityType::Cell, world::EntityType::Predator);
 }
 
 
-std::vector<float>& State::passStatualInput(const entity::Transform& transform,
+std::vector<float>& State::PassStatualInput(const entity::Transform& transform,
     const std::function<float(const entity::Transform&, float, float)>& checkRayCollision,
     const std::function<std::vector<float>(const entity::Transform&, 
     world::EntityType entityType1, world::EntityType entityType2)>& checkFoodProximity) {
     static std::vector<float> input;
     input.clear();
 
-    std::vector<float> nearestFoodTransform = getNearestFoodTransform(transform, checkFoodProximity);
+    std::vector<float> nearestFoodTransform = GetNearestFoodTransform(transform, checkFoodProximity);
 
-    std::vector<float> nearestPredatorTransform = getNearestPredatorTransform(transform, checkFoodProximity);
+    std::vector<float> nearestPredatorTransform = GetNearestPredatorTransform(transform, checkFoodProximity);
 
     // The callback contract is expected to return three values:
     // distance, sin(angle), and cos(angle).
     input.insert(input.end(), nearestFoodTransform.begin(), nearestFoodTransform.end());
     input.insert(input.end(), nearestPredatorTransform.begin(), nearestPredatorTransform.end());
 
-    input.push_back(getLeftWhiskerProximity(transform, checkRayCollision));
-    input.push_back(getRightWhiskerProximity(transform, checkRayCollision));
-    input.push_back(getCenterWhiskerProximity(transform, checkRayCollision));
+    input.push_back(GetLeftWhiskerProximity(transform, checkRayCollision));
+    input.push_back(GetRightWhiskerProximity(transform, checkRayCollision));
+    input.push_back(GetCenterWhiskerProximity(transform, checkRayCollision));
 
     input.push_back(health);
     input.push_back(energy);

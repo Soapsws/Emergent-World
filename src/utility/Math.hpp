@@ -33,13 +33,13 @@ namespace math {
         return min + scale * (max - min);
     }
 
-    inline void relu(std::vector<float>& layer) {
+    inline void Relu(std::vector<float>& layer) {
         for (auto& neuron : layer) {
             neuron = std::max(0.0f, neuron);
         }
     }
 
-    inline void tanh(std::vector<float>& layer) {
+    inline void Tanh(std::vector<float>& layer) {
         for (auto& neuron : layer) {
             neuron = std::tanh(neuron);
         }

@@ -17,6 +17,7 @@
 #include "UI.hpp"
 #include "Action.hpp"
 #include "Brain.hpp"
+#include "StateEncoder.hpp"
 
 class Sim {
 
@@ -94,7 +95,6 @@ class Sim {
 
 
         // AI
-
         Brain cellBrain;
 
         // Registry + hashing
@@ -103,6 +103,7 @@ class Sim {
 
         // Environment & UI
         Walls walls;
+        StateEncoder encoder;
         Renderer renderer;
         UI gui;
 
