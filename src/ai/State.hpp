@@ -42,10 +42,4 @@ struct State {
         const std::function<std::vector<float>(const entity::Transform&,
         world::EntityType entityType1, world::EntityType entityType2)>& checkPredatorProximity) const;
 
-    std::vector<float>& PassStatualInput(const entity::Transform& transform,
-        const std::function<float(const entity::Transform&, float, float)>& checkRayCollision,
-        const std::function<std::vector<float>(const entity::Transform&, 
-        world::EntityType entityType1, world::EntityType entityType2)>& checkFoodProximity);
-
-
 };
