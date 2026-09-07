@@ -8,11 +8,12 @@ class EntityFactory {
 public:
     EntityFactory(CellPool& cellPool, FoodPool& foodPool, RootPool& rootPool);
 
-    int CreateCell(Vector2 pos, Vector2 vel, float rad, float hp, float dps, float drag, float visionRadius, float life, float cool);
+    int CreateCell(Vector2 pos, Vector2 vel, float rad, float hp, float dps, float drag, float visionRadius, 
+        float life, float cool, float raycastLengthValue, entity::Vitals vitalsValues, entity::Consumable consumableValues);
     int CreateCell(const cells::CellData& data);
     void RespawnWithData(int index, const cells::CellData& data);
 
-    int CreateFood(Vector2 pos, Vector2 vel, float rad, float hp, float drag, float life, float cool);
+    int CreateFood(Vector2 pos, Vector2 vel, float rad, float hp, float drag, float life, float cool, entity::Consumable consumableValues);
     int CreateFood(const food::FoodData& data);
     void RespawnWithData(int index, const food::FoodData& data);
 

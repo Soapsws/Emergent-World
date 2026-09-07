@@ -51,6 +51,18 @@ namespace entity {
         float cooldown;
     };
 
+    struct Vitals {
+        float starvationRate;
+        float ingestionRate;
+        float depletionRate;
+        float reenergizationRate;
+    };
+
+    struct Consumable {
+        float foodValue;
+        float energyValue;
+    };
+
     struct SpawningBounds {
         Vector2 lifetimeBounds;
         Vector2 cooldownBounds;
@@ -70,6 +82,11 @@ namespace cells {
         Vector2 dragBounds;
         Vector2 facingAngleBounds;
         Vector2 visionRadiusBounds;
+        float raycastLength;
+        float initialHunger;
+        float initialEnergy;
+        entity::Vitals vitals;
+        entity::Consumable consumable;
     };
 
     inline const CellSpawnConfig DEFAULT {
@@ -86,7 +103,20 @@ namespace cells {
         Vector2{ 100.0f, 200.0f },     // dps
         Vector2{ 0.0f, 0.1f },        // drag
         Vector2{ 0.0f, 2.0f * PI },   // facing angle, radians
-        Vector2{ 100.0f, 250.0f }     // vision radius
+        Vector2{ 100.0f, 250.0f },    // vision radius
+        800.0f,                       // raycast length
+        10.0f,                        // initial hunger
+        10.0f,                        // initial energy
+        entity::Vitals{
+            0.05f, // starvation rate
+            1.0f, // ingestion rate (multiplier)
+            0.1f, // depletion rate
+            1.0f,  // reenergization rate (multiplier)
+        },
+        entity::Consumable{
+            4.0f, // food value when consumed
+            4.0f, // energy value when consumed
+        }
     };
 
     struct CellData {
@@ -97,6 +127,9 @@ namespace cells {
         float dps; // new
         float drag;
         float visionRadius;
+        float raycastLength;
+        entity::Vitals vitals;
+        entity::Consumable consumable;
         bool active;
     };
 
@@ -117,8 +150,8 @@ namespace cells {
                 }
             },
             math::GetRandomFloat(DEFAULT.healthBounds.x, DEFAULT.healthBounds.y),
-            0.0f,
-            0.0f,
+            DEFAULT.initialHunger,
+            DEFAULT.initialEnergy,
             Vector2{
                 cosf(facingAngle),
                 sinf(facingAngle)
@@ -134,6 +167,9 @@ namespace cells {
         math::GetRandomFloat(DEFAULT.dpsBounds.x, DEFAULT.dpsBounds.y),
         math::GetRandomFloat(DEFAULT.dragBounds.x, DEFAULT.dragBounds.y),
         math::GetRandomFloat(DEFAULT.visionRadiusBounds.x, DEFAULT.visionRadiusBounds.y),
+        DEFAULT.raycastLength,
+        DEFAULT.vitals,
+        DEFAULT.consumable,
         true
     };
     }
@@ -149,6 +185,7 @@ namespace food {
         Vector2 radiusBounds;
         Vector2 healthBounds;
         Vector2 dragBounds;
+        entity::Consumable consumable;
     };
 
     inline const FoodSpawnConfig DEFAULT {
@@ -162,8 +199,12 @@ namespace food {
         },
         entity::SpawningBounds{ Vector2{ 50.0f, 100.0f }, Vector2{ 5.0f, 10.0f } },
         Vector2{ 5.0f, 10.0f }, // radius
-        Vector2{ 0.5f, 0.8f }, // hp (TESTING VALUES)
-        Vector2{ 0.02f, 0.06f } // drag
+        Vector2{ 0.5f, 0.8f }, // hp 
+        Vector2{ 0.02f, 0.06f }, // drag
+        entity::Consumable{
+            5.0, // food value
+            5.0, // energy value
+        }
     };
 
     struct FoodData {
@@ -173,8 +214,8 @@ namespace food {
         float radius;
         float health;
         float drag;
+        entity::Consumable consumable;
         bool active;
-        // add more e.g. hunger restored, energy gained, exp gained, etc.
     };
 
     inline FoodData DefaultSpawn() {
@@ -197,6 +238,7 @@ namespace food {
             math::GetRandomFloat(DEFAULT.radiusBounds.x, DEFAULT.radiusBounds.y),
             math::GetRandomFloat(DEFAULT.healthBounds.x, DEFAULT.healthBounds.y),
             math::GetRandomFloat(DEFAULT.dragBounds.x, DEFAULT.dragBounds.y),
+            DEFAULT.consumable,
             true
         };
     }

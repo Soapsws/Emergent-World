@@ -87,15 +87,15 @@ class StateEncoder {
             data.push_back(std::sin(predatorAngle));
             data.push_back(std::cos(predatorAngle));
 
-            const auto ray = [&](float offset, float length) {
+            const auto ray = [&](float offset) {
                 const float facingAngle = std::atan2(state.facing.y, state.facing.x) + offset;
                 return RaycastCollision(state.transform,
-                    position.x + length * std::cos(facingAngle),
-                    position.y + length * std::sin(facingAngle));
+                    position.x + entityPool.raycastLength[i] * std::cos(facingAngle),
+                    position.y + entityPool.raycastLength[i] * std::sin(facingAngle));
             };
-            data.push_back(ray(-0.5f, 10.0f));
-            data.push_back(ray(0.0f, 14.0f));
-            data.push_back(ray(0.5f, 10.0f));
+            data.push_back(ray(-0.75f));
+            data.push_back(ray(0.0f));
+            data.push_back(ray(0.75f));
             data.push_back(state.health);
             data.push_back(state.energy);
             data.push_back(state.hunger);

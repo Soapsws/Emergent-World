@@ -15,6 +15,9 @@ struct CellPool {
     std::vector<float> dps;
     std::vector<float> drag;
     std::vector<float> visionRadius;
+    std::vector<float> raycastLength;
+    std::vector<entity::Vitals> vitals;
+    std::vector<entity::Consumable> consumable;
     std::vector<bool> active;
 
     // initialize pool with capacity (defaults to cells::MAX_CELLS)
@@ -23,7 +26,8 @@ struct CellPool {
     ~CellPool();
 
     // Create by explicit index (used by Sim.cpp)
-    int Create(int idx, State state, float rad, float dps, float drag, float visionRadius, float life, float cool);
+    int Create(int idx, State state, float rad, float dps, float drag, float visionRadius, float raycastLength, 
+        float life, float cool,  entity::Vitals vitals, entity::Consumable consumable);
 
     // Create from CellData (AoS -> SoA unpack)
     int Create(int idx, const cells::CellData& d);

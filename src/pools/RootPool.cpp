@@ -65,7 +65,8 @@ void RootPool::SpawnFood(int index, EntityFactory& entityFactory, IDRegistry& re
             defaults.health,
             defaults.drag,
             defaults.spawning.lifetime,
-            defaults.spawning.cooldown
+            defaults.spawning.cooldown,
+            defaults.consumable
         );
 
         if (foodIndex >= 0) {

@@ -56,6 +56,9 @@ class Sim {
         template <typename Pool>
         void UpdateEntityHealth(Pool& pool, int numEntities);
 
+        void UpdateStatefulEntityHunger();
+        void UpdateStatefulEntityEnergy();
+
         void UpdateCollisions();
 
         template <typename CircularEntityPool1, typename Interact1, typename CircularEntityPool2, typename Interact2>
@@ -80,6 +83,7 @@ class Sim {
         void Render();
 
         void ManualTestWalls();
+        void DrawSelectedCellWhiskers() const;
 
         // Entities
         CellPool cellPool;

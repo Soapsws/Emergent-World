@@ -72,7 +72,7 @@ float StateEncoder::RaycastCollision(const entity::Transform& transform, float e
         and walls can span numerous cells
     */
 
-    float closestIntersection = std::numeric_limits<float>::max();
+    float closestIntersection = 5000;
     
     std::vector<EntityInfo> entitiesInRange = GetInRange(transform.position.x, transform.position.y, math::Distance(transform.position.x, transform.position.y, endX, endY), world::EntityType::Any);
     for (const EntityInfo& entity : entitiesInRange) {

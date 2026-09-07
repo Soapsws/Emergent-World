@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <numeric>
 #include <random>
+#include <cmath>
 #include "imgui.h"
 
 #include "Sim.hpp"
@@ -117,6 +118,9 @@ void Sim::Update() {
 
     UpdateCollisions();
 
+    UpdateStatefulEntityHunger();
+    UpdateStatefulEntityEnergy();
+
     UpdateEntityHealth(cellPool, maxCells);
     UpdateEntityHealth(foodPool, maxFood);
 
@@ -163,7 +167,16 @@ void Sim::UpdateMovement(Pool& pool, int numEntities) {
 
             */ 
 
-            const Action action{0.0f, 0.0f};
+            // temporary random movements
+            std::random_device rand;
+            std::mt19937 gen(rand());
+
+            std::uniform_real_distribution<float> dist(-1.0, 1.0);
+
+            float r_thrust = dist(rand);
+            float r_alpha = dist(rand);
+
+            const Action action{r_thrust, r_alpha};
             action.ApplyOnEntity(pool, i);
         }
     }
@@ -217,6 +230,34 @@ void Sim::UpdateEntityHealth(Pool& pool, int numEntities) {
             pool.active[i] = false;
             const auto id = registry.Find(Pool::entityType, i);
             if (id != IDRegistry::InvalidID) registry.Deactivate(id);
+        }
+    }
+}
+
+void Sim::UpdateStatefulEntityHunger() {
+    // if this is still here, it's a reminder to implement global constant lists of 
+    // pools/entities that belong to each general class (e.g. stateful) for easier distinction
+    // such that here can deploy a loop through entities with vitals
+
+    float t = GetFrameTime();
+
+    for (int i = 0; i < maxCells; i++) {
+        if (cellPool.active[i]) {
+            cellPool.state[i].hunger = std::max(0.0f, cellPool.state[i].hunger - cellPool.vitals[i].starvationRate * t);
+            if (cellPool.state[i].hunger == 0) {
+                // starvation damage logic here
+            }
+        }
+    }
+}
+
+void Sim::UpdateStatefulEntityEnergy() {
+
+    float t = GetFrameTime();
+
+    for (int i = 0; i < maxCells; i++) {
+        if (cellPool.active[i]) {
+            cellPool.state[i].energy = std::max(0.0f, cellPool.state[i].energy - cellPool.vitals[i].depletionRate * t);
         }
     }
 }
@@ -443,7 +484,9 @@ void Sim::Render() {
             renderer.RenderFood(foodPool);
             renderer.RenderRoots(rootPool);
     
-            renderer.RenderWalls(); 
+        renderer.RenderWalls(); 
+
+        DrawSelectedCellWhiskers();
 
         EndMode2D();  
 
@@ -465,6 +508,32 @@ void Sim::Render() {
         gui.End();
 
     EndDrawing(); 
+}
+
+void Sim::DrawSelectedCellWhiskers() const {
+    if (!selectedPool.has_value() || selectedType != world::EntityType::Cell) return;
+
+    const auto& cellPool = std::get<std::reference_wrapper<CellPool>>(*selectedPool).get();
+    if (selectedIndex < 0 || selectedIndex >= static_cast<int>(cellPool.active.size()) ||
+        !cellPool.active[selectedIndex]) return;
+
+    const State& state = cellPool.state[selectedIndex];
+    const Vector2 origin = state.transform.position;
+    const float facingAngle = std::atan2(state.facing.y, state.facing.x);
+
+    const auto drawRay = [&](float offset, float length, Color color) {
+        const float angle = facingAngle + offset;
+        const Vector2 endpoint{
+            origin.x + std::cos(angle) * length,
+            origin.y + std::sin(angle) * length
+        };
+        DrawLineEx(origin, endpoint, 1.5f, color);
+        DrawCircleV(endpoint, 2.5f, color);
+    };
+
+    drawRay(-0.75f, cellPool.raycastLength[selectedIndex], LIME);
+    drawRay(0.0f, cellPool.raycastLength[selectedIndex], YELLOW);
+    drawRay(0.75f, cellPool.raycastLength[selectedIndex], SKYBLUE);
 }
 
 // TEMPORARY MANUAL TEST: remove this function and its constructor call when real walls are ready.
